@@ -184,11 +184,10 @@ EntryPoint.prototype.patch = function(cb, params, headers) {
     this.call(cb, 'PATCH', params, headers || {});
 };
 
-EntryPoint.prototype.navigate = function(targets) {
-    if (typeof targets === 'string') {
-        this.addNavigationStep(targets);
+EntryPoint.prototype.navigate = function(steps) {
+    if (typeof steps === 'string') {
+        this.addNavigationStep(steps);
     } else {
-        var steps = Array.slice(arguments, 0);
         var steps_length = steps.length;
         for (var i = 0; i < steps_length; i++) {
             this.addNavigationStep(steps[i]);
