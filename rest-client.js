@@ -94,7 +94,11 @@ EntryPointResponse.prototype.getLinks = function() {
     
     for (var i = 0; i < links_length; i++) {
         var link = links[i];
-        links_map[link.rel] = new EntryPoint(link.href, {'Content-Type': link.type || 'application/json'});
+        var headers = {};
+        if (link.type) {
+            headers['Content-Type'] = link.type;
+        }
+        links_map[link.rel] = new EntryPoint(link.href, headers);
     }
     
     this.links_map = links_map;
@@ -103,7 +107,7 @@ EntryPointResponse.prototype.getLinks = function() {
 
 EntryPoint = function(url, headers) {
     this.url = url;
-    this.default_headers = headers;
+    this.default_headers = headers || {};
     this.navigation_steps = [];
 };
 
