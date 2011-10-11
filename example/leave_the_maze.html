@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="http://code.jquery.com/jquery-1.6.4.js"> </script>
+		<script src="../rest-client.js"> </script>
+	</head>
+	<body>
+		Please see your browsers console.log for output!		
+	</body>
+	<script>
+		var assertEquals = function(a, b, message) {
+			if (a === b) {
+				console.log('[OK]', a, '===', b);
+			} else {
+				console.error('[  ]', a, '!==', b, message || '');
+			}
+		}
+		
+		console.log('Testing functionality ...');
+		
+		/*
+		 * Walk through the maze
+		 */
+		var e = new EntryPoint('maze/1x1.json');
+	    e.navigate(["*", "leave"]);
+	    e.post(function(response) {
+	    	assertEquals(response.getValue().message, 'The secret honey pot', 'Cannot find the secret message at the finish');
+	    });	    
+	</script>
+</html>

@@ -1,0 +1,13 @@
+{
+	"is_finish": false,
+	"links": [
+		{
+			"rel": "left",
+			"href": "maze/1x2.json"
+		},
+		{
+			"rel": "down",
+			"href": "maze/2x3.json"
+		}		
+	]
+}

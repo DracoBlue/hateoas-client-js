@@ -151,15 +151,15 @@ EntryPoint.prototype.rawCall = function(cb, verb, params, headers) {
 
 EntryPoint.prototype.rawNavigate = function(cb) {
     var that = this;
-    
-    if (this.navigation_steps.length === 0) {
-        cb();
-        return ;
-    }
-    
     var step_position = 0;
     
     var performNextStep = function() {
+        if (step_position === that.navigation_steps.length) {
+            that.navigation_steps = [];
+            cb();
+            return ;
+        }
+        
         that.rawCall(function(current_response) {
             var next_step = that.navigation_steps[step_position];
             
@@ -168,14 +168,25 @@ EntryPoint.prototype.rawNavigate = function(cb) {
                 current_response = current_response.getMatchingValue(next_step);
             }
             
-            var next_step_entry_point = current_response.getLink(that.navigation_steps[step_position]);
-            that.url = next_step_entry_point.url;
+            var link_name = that.navigation_steps[step_position];
             
-            step_position++;
-            if (step_position === that.navigation_steps.length) {
-                that.navigation_steps = [];
-                cb();
+            if (link_name === '*') {
+                step_position++;
+                var filter_object = that.navigation_steps[step_position];
+                
+                that.rawBreadthFirstSearch(function(next_step_entry_point) {
+                    if (!next_step_entry_point) {
+                        throw new Error('Cannot find link with name: ' + filter_object);
+                    }
+                    that.url = next_step_entry_point.url;
+                    step_position++;
+                    performNextStep();
+                }, filter_object);
             } else {
+                var next_step_entry_point = current_response.getLink(link_name);
+                that.url = next_step_entry_point.url;
+                
+                step_position++;
                 performNextStep();
             }
         }, 'GET');
@@ -183,6 +194,60 @@ EntryPoint.prototype.rawNavigate = function(cb) {
     
     performNextStep();
 };
+
+EntryPoint.prototype.rawBreadthFirstSearch = function(cb, link_name) {
+    var url_was_in_frontier = {};
+    url_was_in_frontier[this.url] = true;
+    
+    var frontier = [this.url];
+    var frontier_length = frontier.length;
+    var tmp_entry_point = new EntryPoint(this.url);
+
+    var new_frontier = [];
+    
+    var step_position = 0;
+    
+    var performIteration = function() {
+        if (step_position === frontier_length && new_frontier.length === 0) {
+            cb();
+            return ;
+        }
+
+        if (step_position === frontier_length) {
+            step_position = 0;
+            frontier = new_frontier;
+            frontier_length = frontier.length;
+            new_frontier = [];
+        }
+        
+        tmp_entry_point.url = frontier[step_position];
+        tmp_entry_point.rawCall(function(response) {
+            var links = response.getLinks();
+            
+            if (typeof links[link_name] !== 'undefined') {
+                /*
+                 * YES!
+                 */
+                cb(links[link_name]);
+                return ;
+            }
+            
+            jQuery.each(links, function(pos, link) {
+                if (!url_was_in_frontier[link.url]) {
+                    new_frontier.push(link.url);
+                    url_was_in_frontier[link.url] = true;
+                } else {
+                }
+            });
+            
+            step_position++;
+            performIteration();
+        }, 'GET');
+    };
+    
+    performIteration();
+};
+
 
 EntryPoint.prototype.call = function(cb, verb, params, headers) {
     var that = this;

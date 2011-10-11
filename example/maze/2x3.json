@@ -1,0 +1,17 @@
+{
+	"is_finish": true,
+	"links": [
+		{
+			"rel": "left",
+			"href": "maze/2x2.json"
+		},
+		{
+			"rel": "up",
+			"href": "maze/1x3.json"
+		},
+		{
+			"rel": "leave",
+			"href": "maze/finish.json"
+		}		
+	]
+}
