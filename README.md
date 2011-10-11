@@ -64,6 +64,7 @@ Changelog
 ---------
 
 * 1.0-dev
+  - added function as filter object
   - example files added
   - initial commit
 

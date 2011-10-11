@@ -55,10 +55,19 @@ EntryPointResponse.prototype.getMatchingValue = function(filter_object) {
     
     for (var i = 0; i < values_length; i++) {
         var value = values[i];
-        for (key in filter_object) {
-            if (filter_object.hasOwnProperty(key) && filter_object[key] === value[key]) {
-                return new EntryPointResponse(this.xhr, value);
+        var is_match = true;
+        if (typeof filter_object === 'function') {
+            is_match = filter_object(value);
+        } else {
+            for (key in filter_object) {
+                if (filter_object.hasOwnProperty(key) && filter_object[key] !== value[key]) {
+                    is_match = false;
+                }
             }
+        }
+        
+        if (is_match) {
+            return new EntryPointResponse(this.xhr, value);
         }
     }
     
