@@ -149,32 +149,50 @@ EntryPoint.prototype.rawCall = function(cb, verb, params, headers) {
     });
 };
 
+EntryPoint.prototype.rawNavigate = function(cb) {
+    var that = this;
+    
+    if (this.navigation_steps.length === 0) {
+        cb();
+        return ;
+    }
+    
+    var step_position = 0;
+    
+    var performNextStep = function() {
+        that.rawCall(function(current_response) {
+            var next_step = that.navigation_steps[step_position];
+            
+            if (typeof next_step !== 'string') {
+                step_position += 1;
+                current_response = current_response.getMatchingValue(next_step);
+            }
+            
+            var next_step_entry_point = current_response.getLink(that.navigation_steps[step_position]);
+            that.url = next_step_entry_point.url;
+            
+            step_position++;
+            if (step_position === that.navigation_steps.length) {
+                that.navigation_steps = [];
+                cb();
+            } else {
+                performNextStep();
+            }
+        }, 'GET');
+    };
+    
+    performNextStep();
+};
+
 EntryPoint.prototype.call = function(cb, verb, params, headers) {
     var that = this;
     if (this.navigation_steps.length === 0) {
         this.rawCall(cb, verb, params, headers);
     } else {
-        this.rawCall(function(response) {
-            var next_step = that.navigation_steps[0];
-            var offset = 1;
-            var current_response = response;
-            
-            if (typeof next_step !== 'string') {
-                offset = offset + 1;
-                current_response = current_response.getMatchingValue(next_step);
-            }
-            var next_step_entry_point = current_response.getLink(that.navigation_steps[offset - 1]);
-            var steps = that.navigation_steps;
-            var steps_length = steps.length;
-            for (var i = offset; i < steps_length; i++) {
-                next_step_entry_point.addNavigationStep(steps[i]);
-            }
-            
-            next_step_entry_point.call(cb, verb, params, headers);
-        }, 'GET');
-        return ;
+        this.rawNavigate(function() {
+            that.rawCall(cb, verb, params, headers);
+        });
     }
-    
 };
 
 EntryPoint.prototype.get = function(cb, params, headers) {
