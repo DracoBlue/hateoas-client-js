@@ -56,6 +56,8 @@ Todos
 * extend the api so that errors can be handled
 * handle status codes (currently the response is taken and the status code is ignored)
 * add documentation for `EntryPoint` and `EntryPointResponse`
+* if '*' is used for navigate, follow until next element is found
+* support mimetypes
 * ... more as soon as I get to that!
 
 Changelog
