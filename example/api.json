@@ -1,0 +1,3 @@
+{
+	"links": [ { "rel": "coffee", "href": "api/coffee.json" }]
+}

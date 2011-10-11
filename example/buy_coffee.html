@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="http://code.jquery.com/jquery-1.6.4.js"> </script>
+		<script src="../rest-client.js"> </script>
+	</head>
+	<body>
+		Please see your browsers console.log for output!		
+	</body>
+	<script>
+		var assertEquals = function(a, b, message) {
+			if (a === b) {
+				console.log('[OK]', a, '===', b);
+			} else {
+				console.error('[  ]', a, '!==', b, message || '');
+			}
+		}
+		
+		console.log('Testing functionality ...');
+		/*
+		 * Working api usage
+		 */
+		var e = new EntryPoint('api.json');
+	    e.navigate(['coffee', {'name': 'Small'}, "buy"]);
+	    e.post(function(response) {
+	    	assertEquals(response.getValue().message, 'Thanks for your order!', 'Cannot find message after navigation');
+	    });
+	</script>
+</html>

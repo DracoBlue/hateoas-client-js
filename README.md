@@ -64,6 +64,7 @@ Changelog
 ---------
 
 * 1.0-dev
+  - example files added
   - initial commit
 
 License
