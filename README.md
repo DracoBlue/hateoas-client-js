@@ -54,7 +54,7 @@ Todos
 
 * add support for other responses (xml, maybe a generic converter system or usage of the one from jQuery)
 * extend the api so that errors can be handled
-* handle status codes (currently the response is taken and the status code is ignored)
+* handle status codes other then 200 (currently only 200 is EntryPointsResponse#isOk() == true)
 * add documentation for `EntryPoint` and `EntryPointResponse`
 * support mimetypes
 * ... more as soon as I get to that!
@@ -63,6 +63,7 @@ Changelog
 ---------
 
 * 1.0-dev
+  - added handling for status code different to 200
   - added * as indicator for breadth first search in EntryPoint#navigate
   - added function as filter object
   - example files added

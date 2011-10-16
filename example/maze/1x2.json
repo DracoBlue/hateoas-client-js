@@ -7,6 +7,9 @@
 		}, {
 			"rel": "right",
 			"href": "maze/1x3.json"
-		}
+		}, {
+            "rel": "down",
+            "href": "maze/2x2.json"
+        }
 	]
 }

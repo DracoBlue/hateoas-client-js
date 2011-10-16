@@ -25,6 +25,10 @@ EntryPointResponse.prototype.getValue = function() {
     return this.value;
 };
 
+EntryPointResponse.prototype.isOk = function() {
+    return this.xhr.status === 200 ? true : false;
+};
+
 EntryPointResponse.prototype.at = function(pos) {
     var values = this.getValues();
     return values[pos];
@@ -114,6 +118,14 @@ EntryPointResponse.prototype.getLinks = function() {
     return this.links_map;
 };
 
+NotOkEntryPointResponse = function() {
+    
+};
+
+NotOkEntryPointResponse.prototype.isOk = function() {
+    return false;
+};
+
 EntryPoint = function(url, headers) {
     this.url = url;
     this.default_headers = headers || {};
@@ -152,15 +164,22 @@ EntryPoint.prototype.rawCall = function(cb, verb, params, headers) {
 EntryPoint.prototype.rawNavigate = function(cb) {
     var that = this;
     var step_position = 0;
+    var last_response = null;
     
     var performNextStep = function() {
         if (step_position === that.navigation_steps.length) {
             that.navigation_steps = [];
-            cb();
+            cb(last_response);
             return ;
         }
         
         that.rawCall(function(current_response) {
+            last_response = current_response;
+            if (!current_response.isOk()) {
+                cb(current_response);
+                return ;
+            }
+            
             var next_step = that.navigation_steps[step_position];
             
             if (typeof next_step !== 'string') {
@@ -174,16 +193,24 @@ EntryPoint.prototype.rawNavigate = function(cb) {
                 step_position++;
                 var filter_object = that.navigation_steps[step_position];
                 
-                that.rawBreadthFirstSearch(function(next_step_entry_point) {
+                that.rawBreadthFirstSearch(function(next_step_entry_point, last_search_response) {
+                    last_response = last_search_response;
                     if (!next_step_entry_point) {
-                        throw new Error('Cannot find link with name: ' + filter_object);
+                        cb(new NotOkEntryPointResponse())
+                        return ;
                     }
                     that.url = next_step_entry_point.url;
                     step_position++;
                     performNextStep();
                 }, filter_object);
             } else {
-                var next_step_entry_point = current_response.getLink(link_name);
+                var next_step_entry_point = null;
+                try {
+                    next_step_entry_point = current_response.getLink(link_name);
+                } catch (error) {
+                    cb(new NotOkEntryPointResponse())
+                    return;
+                }
                 that.url = next_step_entry_point.url;
                 
                 step_position++;
@@ -209,7 +236,7 @@ EntryPoint.prototype.rawBreadthFirstSearch = function(cb, link_name) {
     
     var performIteration = function() {
         if (step_position === frontier_length && new_frontier.length === 0) {
-            cb();
+            cb(null, new NotOkEntryPointResponse());
             return ;
         }
 
@@ -222,24 +249,31 @@ EntryPoint.prototype.rawBreadthFirstSearch = function(cb, link_name) {
         
         tmp_entry_point.url = frontier[step_position];
         tmp_entry_point.rawCall(function(response) {
-            var links = response.getLinks();
-            
-            if (typeof links[link_name] !== 'undefined') {
-                /*
-                 * YES!
-                 */
-                cb(links[link_name]);
-                return ;
+            /*
+             * Was this response ok?
+             */
+            if (response.isOk()) {
+                var links = response.getLinks();
+                
+                if (typeof links[link_name] !== 'undefined') {
+                    /*
+                     * YES!
+                     */
+                    cb(links[link_name], response);
+                    return ;
+                }
+                
+                jQuery.each(links, function(pos, link) {
+                    if (!url_was_in_frontier[link.url]) {
+                        new_frontier.push(link.url);
+                        url_was_in_frontier[link.url] = true;
+                    }
+                });
             }
             
-            jQuery.each(links, function(pos, link) {
-                if (!url_was_in_frontier[link.url]) {
-                    new_frontier.push(link.url);
-                    url_was_in_frontier[link.url] = true;
-                } else {
-                }
-            });
-            
+            /*
+             * Continue with next element in the frontier!
+             */
             step_position++;
             performIteration();
         }, 'GET');
@@ -254,8 +288,12 @@ EntryPoint.prototype.call = function(cb, verb, params, headers) {
     if (this.navigation_steps.length === 0) {
         this.rawCall(cb, verb, params, headers);
     } else {
-        this.rawNavigate(function() {
-            that.rawCall(cb, verb, params, headers);
+        this.rawNavigate(function(navigation_response) {
+            if (navigation_response.isOk()) {
+                that.rawCall(cb, verb, params, headers);
+            } else {
+                cb(navigation_response);
+            }
         });
     }
 };
