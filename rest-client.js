@@ -10,14 +10,14 @@
  * information, please see the LICENSE file in the root folder.
  */
 
-EntryPointResponse = function(xhr, value) {
+HttpResponse = function(xhr, value) {
     this.xhr = xhr;
     this.value = value || null;
     this.values = null;
     this.links_map = null;
 };
 
-EntryPointResponse.prototype.getValue = function() {
+HttpResponse.prototype.getValue = function() {
     if (!this.value) {
         this.value = jQuery.parseJSON(this.xhr.responseText);
     }
@@ -25,16 +25,16 @@ EntryPointResponse.prototype.getValue = function() {
     return this.value;
 };
 
-EntryPointResponse.prototype.isOk = function() {
+HttpResponse.prototype.isOk = function() {
     return this.xhr.status === 200 ? true : false;
 };
 
-EntryPointResponse.prototype.at = function(pos) {
+HttpResponse.prototype.at = function(pos) {
     var values = this.getValues();
     return values[pos];
 };
 
-EntryPointResponse.prototype.getValues = function() {
+HttpResponse.prototype.getValues = function() {
     if (this.values) {
         return this.values;
     }
@@ -45,13 +45,13 @@ EntryPointResponse.prototype.getValues = function() {
     var values_length = values.length;
     
     for (var i = 0; i < values_length; i++) {
-        value_entry_points.push(new EntryPointResponse(this.xhr, values[i]));
+        value_entry_points.push(new HttpResponse(this.xhr, values[i]));
     }
     this.values = value_entry_points;
     return this.values;
 };
 
-EntryPointResponse.prototype.getMatchingValue = function(filter_object) {
+HttpResponse.prototype.getMatchingValue = function(filter_object) {
     var value_entry_points = [];
     
     var values = this.getValue();
@@ -71,14 +71,14 @@ EntryPointResponse.prototype.getMatchingValue = function(filter_object) {
         }
         
         if (is_match) {
-            return new EntryPointResponse(this.xhr, value);
+            return new HttpResponse(this.xhr, value);
         }
     }
     
     throw new Error('No matching value found for filter object');
 };
 
-EntryPointResponse.prototype.getLink = function(link_name) {
+HttpResponse.prototype.getLink = function(link_name) {
     var links = this.getLinks();
     if (typeof links[link_name] === 'undefined') {
         throw new Error('Cannot find link with name: ' + link_name);
@@ -86,7 +86,7 @@ EntryPointResponse.prototype.getLink = function(link_name) {
     return links[link_name];
 };
 
-EntryPointResponse.prototype.getLinks = function() {
+HttpResponse.prototype.getLinks = function() {
     if (this.links_map) {
         return this.links_map;
     }
@@ -111,35 +111,35 @@ EntryPointResponse.prototype.getLinks = function() {
         if (link.type) {
             headers['Content-Type'] = link.type;
         }
-        links_map[link.rel] = new EntryPoint(link.href, headers);
+        links_map[link.rel] = new HttpAgent(link.href, headers);
     }
     
     this.links_map = links_map;
     return this.links_map;
 };
 
-NotOkEntryPointResponse = function() {
+NotOkHttpResponse = function() {
     
 };
 
-NotOkEntryPointResponse.prototype.isOk = function() {
+NotOkHttpResponse.prototype.isOk = function() {
     return false;
 };
 
-EntryPoint = function(url, headers) {
+HttpAgent = function(url, headers) {
     this.url = url;
     this.default_headers = headers || {};
     this.navigation_steps = [];
 };
 
-EntryPoint.prototype.clone = function() {
-    var clone = new EntryPoint(this.url);
+HttpAgent.prototype.clone = function() {
+    var clone = new HttpAgent(this.url);
     clone.default_headers = jQuery.extend(true, {}, this.default_headers);
     clone.navigation_steps = jQuery.extend(true, [], this.navigation_steps);
     return clone;
 };
 
-EntryPoint.prototype.rawCall = function(cb, verb, params, headers) {
+HttpAgent.prototype.rawCall = function(cb, verb, params, headers) {
     var that = this;
     
     headers = headers || {};
@@ -156,12 +156,12 @@ EntryPoint.prototype.rawCall = function(cb, verb, params, headers) {
         type: verb,
         data: params || {},
         complete: function(response) {
-            cb(new EntryPointResponse(response));
+            cb(new HttpResponse(response));
         }
     });
 };
 
-EntryPoint.prototype.rawNavigate = function(cb) {
+HttpAgent.prototype.rawNavigate = function(cb) {
     var that = this;
     var step_position = 0;
     var last_response = null;
@@ -196,7 +196,7 @@ EntryPoint.prototype.rawNavigate = function(cb) {
                 that.rawBreadthFirstSearch(function(next_step_entry_point, last_search_response) {
                     last_response = last_search_response;
                     if (!next_step_entry_point) {
-                        cb(new NotOkEntryPointResponse())
+                        cb(new NotOkHttpResponse())
                         return ;
                     }
                     that.url = next_step_entry_point.url;
@@ -208,7 +208,7 @@ EntryPoint.prototype.rawNavigate = function(cb) {
                 try {
                     next_step_entry_point = current_response.getLink(link_name);
                 } catch (error) {
-                    cb(new NotOkEntryPointResponse())
+                    cb(new NotOkHttpResponse())
                     return;
                 }
                 that.url = next_step_entry_point.url;
@@ -222,13 +222,13 @@ EntryPoint.prototype.rawNavigate = function(cb) {
     performNextStep();
 };
 
-EntryPoint.prototype.rawBreadthFirstSearch = function(cb, link_name) {
+HttpAgent.prototype.rawBreadthFirstSearch = function(cb, link_name) {
     var url_was_in_frontier = {};
     url_was_in_frontier[this.url] = true;
     
     var frontier = [this.url];
     var frontier_length = frontier.length;
-    var tmp_entry_point = new EntryPoint(this.url);
+    var tmp_entry_point = new HttpAgent(this.url);
 
     var new_frontier = [];
     
@@ -236,7 +236,7 @@ EntryPoint.prototype.rawBreadthFirstSearch = function(cb, link_name) {
     
     var performIteration = function() {
         if (step_position === frontier_length && new_frontier.length === 0) {
-            cb(null, new NotOkEntryPointResponse());
+            cb(null, new NotOkHttpResponse());
             return ;
         }
 
@@ -283,7 +283,7 @@ EntryPoint.prototype.rawBreadthFirstSearch = function(cb, link_name) {
 };
 
 
-EntryPoint.prototype.call = function(cb, verb, params, headers) {
+HttpAgent.prototype.call = function(cb, verb, params, headers) {
     var that = this;
     if (this.navigation_steps.length === 0) {
         this.rawCall(cb, verb, params, headers);
@@ -298,27 +298,27 @@ EntryPoint.prototype.call = function(cb, verb, params, headers) {
     }
 };
 
-EntryPoint.prototype.get = function(cb, params, headers) {
+HttpAgent.prototype.get = function(cb, params, headers) {
     this.call(cb, 'GET', params, headers || {});
 };
 
-EntryPoint.prototype.post = function(cb, params, headers) {
+HttpAgent.prototype.post = function(cb, params, headers) {
     this.call(cb, 'POST', params, headers || {});
 };
 
-EntryPoint.prototype['delete'] = function(cb, params, headers) {
+HttpAgent.prototype['delete'] = function(cb, params, headers) {
     this.call(cb, 'DELETE', params, headers || {});
 };
 
-EntryPoint.prototype.put = function(cb, params, headers) {
+HttpAgent.prototype.put = function(cb, params, headers) {
     this.call(cb, 'PUT', params, headers || {});
 };
 
-EntryPoint.prototype.patch = function(cb, params, headers) {
+HttpAgent.prototype.patch = function(cb, params, headers) {
     this.call(cb, 'PATCH', params, headers || {});
 };
 
-EntryPoint.prototype.navigate = function(steps) {
+HttpAgent.prototype.navigate = function(steps) {
     if (typeof steps === 'string') {
         this.addNavigationStep(steps);
     } else {
@@ -330,6 +330,6 @@ EntryPoint.prototype.navigate = function(steps) {
     return this;
 };
 
-EntryPoint.prototype.addNavigationStep = function(step) {
+HttpAgent.prototype.addNavigationStep = function(step) {
     this.navigation_steps.push(step);
 };

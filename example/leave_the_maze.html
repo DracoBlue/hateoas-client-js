@@ -21,9 +21,9 @@
         /*
          * Walk through the maze
          */
-        var e = new EntryPoint('maze/1x1.json');
+        var e = new HttpAgent('maze/1x1.json');
         e.navigate(["*", "leave"]);
-        e.post(function(response) {
+        e.get(function(response) {
             assertEquals(response.getValue().message, 'The secret honey pot', 'Cannot find the secret message at the finish');
         });
 

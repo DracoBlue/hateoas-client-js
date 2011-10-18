@@ -21,7 +21,7 @@
         /*
          * Working api usage, with filter-object
          */
-        var e = new EntryPoint('api.json');
+        var e = new HttpAgent('api.json');
         e.navigate(['coffee', {
             'name' : 'Small'
         }, "buy"]);
@@ -32,15 +32,15 @@
         /*
          * Working api usage, without anything
          */
-        var e = new EntryPoint('api.json');
+        var e = new HttpAgent('api.json');
         e.navigate(['coffee']);
-        e.post(function(response) {
+        e.get(function(response) {
             assertEquals(response.getValue()[0].name, 'Small', 'Cannot find name of first coffee');
         });
         /*
          * Working api usage, with filter-function
          */
-        var e = new EntryPoint('api.json');
+        var e = new HttpAgent('api.json');
         e.navigate(['coffee',
         function(value) {
             return value.name === 'Small';
@@ -52,7 +52,7 @@
         /*
          * Broken api usage, because "invalid_link" cannot be found!
          */
-        var e = new EntryPoint('api.json');
+        var e = new HttpAgent('api.json');
         e.navigate(['coffee', "invalid_link", "buy"]);
         e.post(function(response) {
             assertEquals(response.isOk(), false, 'It was possible to navigate!');

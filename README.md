@@ -28,7 +28,7 @@ How does it work?
 If you include `rest-client.js` after your `jQuery.js`, you'll have the ability
 to make such requests:
 
-    var e = new EntryPoint('/api');
+    var e = new HttpAgent('/api');
     e.navigate(['coffee', {'name': 'Small'}, "buy"]);
     e.post(function(response) {
         // response.getValue() contains what the POST /api/orders?product_id=5 returned
@@ -54,8 +54,8 @@ Todos
 
 * add support for other responses (xml, maybe a generic converter system or usage of the one from jQuery)
 * extend the api so that errors can be handled
-* handle status codes other then 200 (currently only 200 is EntryPointsResponse#isOk() == true)
-* add documentation for `EntryPoint` and `EntryPointResponse`
+* handle status codes other then 200 (currently only 200 is HttpResponse#isOk() == true)
+* add documentation for `HttpAgent` and `HttpResponse`
 * support mimetypes
 * ... more as soon as I get to that!
 
@@ -64,7 +64,7 @@ Changelog
 
 * 1.0-dev
   - added handling for status code different to 200
-  - added * as indicator for breadth first search in EntryPoint#navigate
+  - added * as indicator for breadth first search in HttpAgent#navigate
   - added function as filter object
   - example files added
   - initial commit
