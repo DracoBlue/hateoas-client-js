@@ -28,9 +28,9 @@ How does it work?
 If you include `rest-client.js` after your `jQuery.js`, you'll have the ability
 to make such requests:
 
-    var e = new HttpAgent('/api');
-    e.navigate(['coffee', {'name': 'Small'}, "buy"]);
-    e.post(function(response) {
+    var a = new HttpAgent('/api');
+    a.navigate(['coffee', {'name': 'Small'}, "buy"]);
+    a.post(function(response) {
         // response.getValue() contains what the POST /api/orders?product_id=5 returned
     });
 
