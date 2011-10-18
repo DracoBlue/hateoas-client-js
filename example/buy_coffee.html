@@ -27,7 +27,7 @@
         }, "buy"]);
         a.post(function(response) {
             assertEquals(response.isOk(), true, 'It was not possible to navigate!');
-            assertEquals(response.getValue().message, 'Thanks for your order!', 'Cannot find message after navigation');
+            assertEquals(response.getValue().status, 'pending', 'Cannot find status after navigation');
         });
         /*
          * Working api usage, without anything
@@ -46,7 +46,7 @@
             return value.name === 'Small';
         }, "buy"]);
         a.post(function(response) {
-            assertEquals(response.getValue().message, 'Thanks for your order!', 'Cannot find message after navigation');
+            assertEquals(response.getValue().status, 'pending', 'Cannot find status after navigation');
         });
 
         /*

@@ -34,6 +34,10 @@ HttpResponse.prototype.at = function(pos) {
     return values[pos];
 };
 
+HttpResponse.prototype.getHeader = function(name, default_value) {
+    return this.xhr.getResponseHeader(name) || default_value;
+};
+
 HttpResponse.prototype.getValues = function() {
     if (this.values) {
         return this.values;
@@ -156,7 +160,13 @@ HttpAgent.prototype.rawCall = function(cb, verb, params, headers) {
         type: verb,
         data: params || {},
         complete: function(response) {
-            cb(new HttpResponse(response));
+            if (response.status === 201) {
+                var http_response = new HttpResponse(response);
+                that.url = http_response.getHeader('Location');
+                that.rawCall(cb, 'GET', {}, headers);
+            } else {
+                cb(new HttpResponse(response));
+            }
         }
     });
 };

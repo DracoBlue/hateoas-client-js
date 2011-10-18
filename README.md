@@ -53,8 +53,7 @@ Todos
 -----
 
 * add support for other responses (xml, maybe a generic converter system or usage of the one from jQuery)
-* extend the api so that errors can be handled
-* handle status codes other then 200 (currently only 200 is HttpResponse#isOk() == true)
+* handle status codes other then 200 (currently only 200 is HttpResponse#isOk() == true and 201 is interpreted)
 * add documentation for `HttpAgent` and `HttpResponse`
 * support mimetypes
 * ... more as soon as I get to that!
@@ -63,7 +62,8 @@ Changelog
 ---------
 
 * 1.0-dev
-  - added handling for status code different to 200
+  - added handler for 201 Created response
+  - added handling for status code 200
   - added * as indicator for breadth first search in HttpAgent#navigate
   - added function as filter object
   - example files added
