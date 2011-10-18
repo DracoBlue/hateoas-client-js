@@ -2,6 +2,6 @@
     {
         "id": 5,
         "name": "Small",
-        "links": [ { "rel": "buy", "href": "api/orders.json?product_id=5" } ]
+        "links": [ { "rel": "buy", "href": "api/orders.php?product_id=5" } ]
     }
 ]

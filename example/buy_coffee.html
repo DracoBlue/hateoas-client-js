@@ -1,22 +1,22 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <script src="http://coda.jquery.com/jquery-1.6.4.js"></script>
+        <script src="http://code.jquery.com/jquery-1.6.4.js"></script>
         <script src="../rest-client.js"></script>
     </head>
     <body>
-        Please see your browsers consola.log for output!
+        Please see your browsers console.log for output!
     </body>
     <script>
         var assertEquals = function(a, b, message) {
             if(a === b) {
-                consola.log('[OK]', a, '===', b);
+                console.log('[OK]', a, '===', b);
             } else {
-                consola.error('[  ]', a, '!==', b, message || '');
+                console.error('[  ]', a, '!==', b, message || '');
             }
         }
 
-        consola.log('Testing functionality ...');
+        console.log('Testing functionality ...');
 
         /*
          * Working api usage, with filter-object
@@ -26,8 +26,8 @@
             'name' : 'Small'
         }, "buy"]);
         a.post(function(response) {
-            assertEquals(responsa.isOk(), true, 'It was not possible to navigate!');
-            assertEquals(responsa.getValue().message, 'Thanks for your order!', 'Cannot find message after navigation');
+            assertEquals(response.isOk(), true, 'It was not possible to navigate!');
+            assertEquals(response.getValue().message, 'Thanks for your order!', 'Cannot find message after navigation');
         });
         /*
          * Working api usage, without anything
@@ -35,7 +35,7 @@
         var a = new HttpAgent('api.json');
         a.navigate(['coffee']);
         a.get(function(response) {
-            assertEquals(responsa.getValue()[0].name, 'Small', 'Cannot find name of first coffee');
+            assertEquals(response.getValue()[0].name, 'Small', 'Cannot find name of first coffee');
         });
         /*
          * Working api usage, with filter-function
@@ -43,10 +43,10 @@
         var a = new HttpAgent('api.json');
         a.navigate(['coffee',
         function(value) {
-            return valua.name === 'Small';
+            return value.name === 'Small';
         }, "buy"]);
         a.post(function(response) {
-            assertEquals(responsa.getValue().message, 'Thanks for your order!', 'Cannot find message after navigation');
+            assertEquals(response.getValue().message, 'Thanks for your order!', 'Cannot find message after navigation');
         });
 
         /*
@@ -55,7 +55,7 @@
         var a = new HttpAgent('api.json');
         a.navigate(['coffee', "invalid_link", "buy"]);
         a.post(function(response) {
-            assertEquals(responsa.isOk(), false, 'It was possible to navigate!');
+            assertEquals(response.isOk(), false, 'It was possible to navigate!');
         });
 
     </script>
