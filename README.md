@@ -62,6 +62,7 @@ Changelog
 ---------
 
 * 1.0-dev
+  - added filtering * + object to breadth first search for anything until it matches a filter object
   - added handler for 201 Created response
   - added handling for status code 200
   - added * as indicator for breadth first search in HttpAgent#navigate

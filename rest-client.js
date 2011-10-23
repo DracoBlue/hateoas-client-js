@@ -59,6 +59,14 @@ HttpResponse.prototype.getMatchingValue = function(filter_object) {
     var value_entry_points = [];
     
     var values = this.getValue();
+    
+    /*
+     * FIXME: An old man's check, whether what we've got here is an array or not
+     */
+    if (typeof values !== "object" || typeof values.join !== "function") {
+        values = [values];
+    }
+    
     var values_length = values.length;
     
     for (var i = 0; i < values_length; i++) {
@@ -87,7 +95,7 @@ HttpResponse.prototype.getLink = function(link_name) {
     if (typeof links[link_name] === 'undefined') {
         throw new Error('Cannot find link with name: ' + link_name);
     }
-    return links[link_name];
+    return links[link_name][0];
 };
 
 HttpResponse.prototype.getLinks = function() {
@@ -115,7 +123,8 @@ HttpResponse.prototype.getLinks = function() {
         if (link.type) {
             headers['Content-Type'] = link.type;
         }
-        links_map[link.rel] = new HttpAgent(link.href, headers);
+        links_map[link.rel] = links_map[link.rel] || [];
+        links_map[link.rel].push(new HttpAgent(link.href, headers));
     }
     
     this.links_map = links_map;
@@ -232,7 +241,7 @@ HttpAgent.prototype.rawNavigate = function(cb) {
     performNextStep();
 };
 
-HttpAgent.prototype.rawBreadthFirstSearch = function(cb, link_name) {
+HttpAgent.prototype.rawBreadthFirstSearch = function(cb, filter_object) {
     var url_was_in_frontier = {};
     url_was_in_frontier[this.url] = true;
     
@@ -265,19 +274,33 @@ HttpAgent.prototype.rawBreadthFirstSearch = function(cb, link_name) {
             if (response.isOk()) {
                 var links = response.getLinks();
                 
-                if (typeof links[link_name] !== 'undefined') {
+                if (typeof filter_object === "string" && typeof links[filter_object] !== 'undefined') {
                     /*
                      * YES!
                      */
-                    cb(links[link_name], response);
+                    cb(links[filter_object][0], response);
                     return ;
                 }
                 
-                jQuery.each(links, function(pos, link) {
-                    if (!url_was_in_frontier[link.url]) {
-                        new_frontier.push(link.url);
-                        url_was_in_frontier[link.url] = true;
+                if (typeof filter_object !== "string") {
+                    try {
+                        var matching_value = response.getMatchingValue(filter_object);
+                        cb(tmp_entry_point.clone(), response);
+                        return ;
+                    } catch (error) {
+                        /*
+                         * We'll continue, if that object didn't match
+                         */
                     }
+                }
+                
+                jQuery.each(links, function(pos, link_targets) {
+                    jQuery.each(link_targets, function(sub_pos, link) {
+                        if (!url_was_in_frontier[link.url]) {
+                            new_frontier.push(link.url);
+                            url_was_in_frontier[link.url] = true;
+                        }
+                    });
                 });
             }
             
