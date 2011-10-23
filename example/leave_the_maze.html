@@ -21,9 +21,19 @@
         /*
          * Walk through the maze
          */
-        var e = new HttpAgent('maze/1x1.json');
-        e.navigate(["*", "leave"]);
-        e.get(function(response) {
+        var a = new HttpAgent('maze/1x1.json');
+        a.navigate(["*", "leave"]);
+        a.get(function(response) {
+            assertEquals(response.getValue().message, 'The secret honey pot', 'Cannot find the secret message at the finish');
+        });
+        
+        
+        /*
+         * Walk through the maze, and search for "The secret honey pot as message"
+         */
+        var a = new HttpAgent('maze/1x1.json');
+        a.navigate(["*", {"message": 'The secret honey pot'}]);
+        a.get(function(response) {
             assertEquals(response.getValue().message, 'The secret honey pot', 'Cannot find the secret message at the finish');
         });
 
