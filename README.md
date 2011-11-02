@@ -53,8 +53,8 @@ Todos
 -----
 
 * add support for other responses (xml, maybe a generic converter system or usage of the one from jQuery)
-* handle status codes other then 200 (currently only 200 is HttpResponse#isOk() == true and 201 is interpreted)
-* add documentation for `HttpAgent` and `HttpResponse`
+* handle status codes other then 200 (currently only 200 is JsonHttpResponse#isOk() == true and 201 is interpreted)
+* add documentation for `HttpAgent`, `JsonHttpResponse`, `AtomXmlHttpResponse` and `XmlHttpResponse`
 * support mimetypes
 * ... more as soon as I get to that!
 
@@ -62,6 +62,7 @@ Changelog
 ---------
 
 * 1.0-dev
+  - added AtomXmlHttpResponse and example for atom feed retrieval
   - added filtering * + object to breadth first search for anything until it matches a filter object
   - added handler for 201 Created response
   - added handling for status code 200

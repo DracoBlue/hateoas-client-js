@@ -10,127 +10,6 @@
  * information, please see the LICENSE file in the root folder.
  */
 
-HttpResponse = function(xhr, value) {
-    this.xhr = xhr;
-    this.value = value || null;
-    this.values = null;
-    this.links_map = null;
-};
-
-HttpResponse.prototype.getValue = function() {
-    if (!this.value) {
-        this.value = jQuery.parseJSON(this.xhr.responseText);
-    }
-    
-    return this.value;
-};
-
-HttpResponse.prototype.isOk = function() {
-    return this.xhr.status === 200 ? true : false;
-};
-
-HttpResponse.prototype.at = function(pos) {
-    var values = this.getValues();
-    return values[pos];
-};
-
-HttpResponse.prototype.getHeader = function(name, default_value) {
-    return this.xhr.getResponseHeader(name) || default_value;
-};
-
-HttpResponse.prototype.getValues = function() {
-    if (this.values) {
-        return this.values;
-    }
-    
-    var value_entry_points = [];
-    
-    var values = this.getValue();
-    var values_length = values.length;
-    
-    for (var i = 0; i < values_length; i++) {
-        value_entry_points.push(new HttpResponse(this.xhr, values[i]));
-    }
-    this.values = value_entry_points;
-    return this.values;
-};
-
-HttpResponse.prototype.getMatchingValue = function(filter_object) {
-    var value_entry_points = [];
-    
-    var values = this.getValue();
-    
-    /*
-     * FIXME: An old man's check, whether what we've got here is an array or not
-     */
-    if (typeof values !== "object" || typeof values.join !== "function") {
-        values = [values];
-    }
-    
-    var values_length = values.length;
-    
-    for (var i = 0; i < values_length; i++) {
-        var value = values[i];
-        var is_match = true;
-        if (typeof filter_object === 'function') {
-            is_match = filter_object(value);
-        } else {
-            for (key in filter_object) {
-                if (filter_object.hasOwnProperty(key) && filter_object[key] !== value[key]) {
-                    is_match = false;
-                }
-            }
-        }
-        
-        if (is_match) {
-            return new HttpResponse(this.xhr, value);
-        }
-    }
-    
-    throw new Error('No matching value found for filter object');
-};
-
-HttpResponse.prototype.getLink = function(link_name) {
-    var links = this.getLinks();
-    if (typeof links[link_name] === 'undefined') {
-        throw new Error('Cannot find link with name: ' + link_name);
-    }
-    return links[link_name][0];
-};
-
-HttpResponse.prototype.getLinks = function() {
-    if (this.links_map) {
-        return this.links_map;
-    }
-    
-    var value = this.getValue();
-    var links = [];
-
-    if (value.hasOwnProperty('links')) {
-        links = $.extend(true, links, value['links']);
-    }
-    
-    if (value.hasOwnProperty('link')) {
-        links.push(value['link']);
-    }
-    
-    var links_map = {};
-    var links_length = links.length;
-    
-    for (var i = 0; i < links_length; i++) {
-        var link = links[i];
-        var headers = {};
-        if (link.type) {
-            headers['Content-Type'] = link.type;
-        }
-        links_map[link.rel] = links_map[link.rel] || [];
-        links_map[link.rel].push(new HttpAgent(link.href, headers));
-    }
-    
-    this.links_map = links_map;
-    return this.links_map;
-};
-
 NotOkHttpResponse = function() {
     
 };
@@ -139,10 +18,11 @@ NotOkHttpResponse.prototype.isOk = function() {
     return false;
 };
 
-HttpAgent = function(url, headers) {
+HttpAgent = function(url, headers, options) {
     this.url = url;
     this.default_headers = headers || {};
     this.navigation_steps = [];
+    this.options = options || {};
 };
 
 HttpAgent.prototype.clone = function() {
@@ -156,6 +36,12 @@ HttpAgent.prototype.rawCall = function(cb, verb, params, headers) {
     var that = this;
     
     headers = headers || {};
+    var url = that.url;
+    
+    if (this.options.proxy_script) {
+        url = this.options.proxy_script + encodeURIComponent(url);
+    }
+    
     jQuery.ajax({
         beforeSend: function(xhrObj){
             for (var header in that.default_headers)
@@ -164,17 +50,16 @@ HttpAgent.prototype.rawCall = function(cb, verb, params, headers) {
                 xhrObj.setRequestHeader(header, headers[header]);
             return xhrObj;
         },        
-        url: that.url,
+        url: url,
         dataType: 'text',
         type: verb,
         data: params || {},
         complete: function(response) {
             if (response.status === 201) {
-                var http_response = new HttpResponse(response);
-                that.url = http_response.getHeader('Location');
+                that.url = response.getResponseHeader('Location');
                 that.rawCall(cb, 'GET', {}, headers);
             } else {
-                cb(new HttpResponse(response));
+                cb(HttpAgent.getHttpResponseByRawResponse(response));
             }
         }
     });
@@ -215,7 +100,7 @@ HttpAgent.prototype.rawNavigate = function(cb) {
                 that.rawBreadthFirstSearch(function(next_step_entry_point, last_search_response) {
                     last_response = last_search_response;
                     if (!next_step_entry_point) {
-                        cb(new NotOkHttpResponse())
+                        cb(new NotOkHttpResponse());
                         return ;
                     }
                     that.url = next_step_entry_point.url;
@@ -227,7 +112,7 @@ HttpAgent.prototype.rawNavigate = function(cb) {
                 try {
                     next_step_entry_point = current_response.getLink(link_name);
                 } catch (error) {
-                    cb(new NotOkHttpResponse())
+                    cb(new NotOkHttpResponse());
                     return;
                 }
                 that.url = next_step_entry_point.url;
@@ -366,3 +251,260 @@ HttpAgent.prototype.navigate = function(steps) {
 HttpAgent.prototype.addNavigationStep = function(step) {
     this.navigation_steps.push(step);
 };
+
+HttpAgent.response_content_types = [];
+
+HttpAgent.registerResponseContentTypes = function(content_types, converter_class) {
+    this.response_content_types.push([content_types, converter_class]);
+};
+        
+HttpAgent.getHttpResponseByRawResponse = function(raw_response) {
+    content_type = raw_response.getResponseHeader('content-type').toLowerCase().split(';')[0];
+    var response_content_types = this.response_content_types;
+    var response_content_types_length = response_content_types.length;
+    for (var i = 0; i < response_content_types_length; i++) {
+        if (response_content_types[i][0].indexOf(content_type) !== -1) {
+            var converter_class = response_content_types[i][1];
+            return new converter_class(raw_response);
+        }
+    }
+    
+    throw new Error('Cannot find converter for content type: ' + content_type);
+};
+
+BaseHttpResponse = function() {
+    
+};
+
+BaseHttpResponse.prototype.isOk = function() {
+    return this.xhr.status === 200 ? true : false;
+};
+
+BaseHttpResponse.prototype.getHeader = function(name, default_value) {
+    return this.xhr.getResponseHeader(name) || default_value;
+};
+
+BaseHttpResponse.prototype.getLink = function(link_name) {
+    var links = this.getLinks();
+    if (typeof links[link_name] === 'undefined') {
+        throw new Error('Cannot find link with name: ' + link_name);
+    }
+    return links[link_name][0];
+};
+
+JsonHttpResponse = function(xhr, value) {
+    this.xhr = xhr;
+    this.value = value || null;
+    this.values = null;
+    this.links_map = null;
+};
+
+jQuery.extend(JsonHttpResponse.prototype, BaseHttpResponse.prototype);
+
+JsonHttpResponse.prototype.getValue = function() {
+    if (!this.value) {
+        this.value = jQuery.parseJSON(this.xhr.responseText);
+    }
+    
+    return this.value;
+};
+
+JsonHttpResponse.prototype.at = function(pos) {
+    var values = this.getValues();
+    return values[pos];
+};
+
+JsonHttpResponse.prototype.getValues = function() {
+    if (!this.values) {
+        var value_entry_points = [];
+
+        var values = this.getValue(this.xhr);
+        var values_length = values.length;
+
+        for (var i = 0; i < values_length; i++) {
+            value_entry_points.push(new JsonHttpResponse(xhr, values[i]));
+        }
+        
+        this.values = value_entry_points;
+    }
+    
+    return this.values;
+};
+
+JsonHttpResponse.prototype.getMatchingValue = function(filter_object) {
+    var value_entry_points = [];
+    
+    var values = this.getValue();
+    
+    /*
+     * FIXME: An old man's check, whether what we've got here is an array or not
+     */
+    if (typeof values !== "object" || typeof values.join !== "function") {
+        values = [values];
+    }
+    
+    var values_length = values.length;
+    
+    for (var i = 0; i < values_length; i++) {
+        var value = values[i];
+        var is_match = true;
+        if (typeof filter_object === 'function') {
+            is_match = filter_object(value);
+        } else {
+            for (key in filter_object) {
+                if (filter_object.hasOwnProperty(key) && filter_object[key] !== value[key]) {
+                    is_match = false;
+                }
+            }
+        }
+        
+        if (is_match) {
+            return new JsonHttpResponse(this.xhr, value);
+        }
+    }
+    
+    throw new Error('No matching value found for filter object');
+};
+
+JsonHttpResponse.prototype.getLinks = function() {
+    if (this.links_map) {
+        return this.links_map;
+    }
+    
+    var value = this.getValue();
+    var links = [];
+
+    if (value.hasOwnProperty('links')) {
+        links = jQuery.extend(true, links, value['links']);
+    }
+    
+    if (value.hasOwnProperty('link')) {
+        links.push(value['link']);
+    }
+    
+    var links_map = {};
+    var links_length = links.length;
+    
+    for (var i = 0; i < links_length; i++) {
+        var link = links[i];
+        var headers = {};
+        if (link.type) {
+            headers['Content-Type'] = link.type;
+        }
+        links_map[link.rel] = links_map[link.rel] || [];
+        links_map[link.rel].push(new HttpAgent(link.href, headers));
+    }
+    
+    this.links_map = links_map;
+    return this.links_map;
+};
+
+HttpAgent.registerResponseContentTypes(['application/json'], JsonHttpResponse);
+
+AtomXmlHttpResponse = function(xhr, value) {
+    this.xhr = xhr;
+    this.value = value || null;
+    this.values = null;
+    this.links_map = null;
+};
+
+jQuery.extend(AtomXmlHttpResponse.prototype, BaseHttpResponse.prototype);
+
+AtomXmlHttpResponse.prototype.getValue = function() {
+    if (!this.value) {
+        this.value = this.xhr.responseXML.childNodes[0];
+    }
+    return this.value;
+};
+
+AtomXmlHttpResponse.prototype.getValues = function() {
+    var that = this;
+    
+    if (!this.values) {
+        var value = this.getValue();
+        
+        this.values = [];
+        
+        var entries = jQuery(this.getValue()).children('entry');
+        jQuery.each(entries, function(pos, raw_entry) {
+            that.values.push(new AtomXmlHttpResponse(that.xhr, raw_entry));
+        });
+    }
+    
+    return this.values;
+};
+
+AtomXmlHttpResponse.prototype.getMatchingValue = function(filter_object) {
+    var value_entry_points = [];
+    
+    var entries = jQuery(this.getValue()).children('entry');
+    var entries_length = entries.length;
+    
+    for (var i = 0; i < entries_length; i++) {
+        var raw_entry = entries[i];
+        var value = new AtomXmlHttpResponse(this.xhr, raw_entry);
+        var is_match = true;
+        if (typeof filter_object === 'function') {
+            is_match = filter_object(value);
+        } else {
+            for (key in filter_object) {
+                if (filter_object.hasOwnProperty(key) && jQuery(raw_entry).find(key).text() != filter_object[key]) {
+                    is_match = false;
+                }
+            }
+        }
+        
+        if (is_match) {
+            return value;
+        }
+    }
+    
+    throw new Error('No matching value found for filter object');
+};
+
+AtomXmlHttpResponse.prototype.getLinks = function() {
+    if (this.links_map) {
+        return this.links_map;
+    }
+    
+    var links_map = {};
+    var links = jQuery(this.getValue()).children('link');
+    jQuery.each(links, function(pos, raw_link) {
+        var headers = {};
+        var link = jQuery(raw_link);
+        var rel = link.attr('rel');
+        if (link.attr('type')) {
+            headers['Content-Type'] = link.attr('type');
+        }
+        links_map[rel] = links_map[rel] || [];
+        links_map[rel].push(new HttpAgent(link.attr('href'), headers));
+    });
+    
+    this.links_map = links_map;
+    return this.links_map;
+};
+
+HttpAgent.registerResponseContentTypes(['application/atom+xml'], AtomXmlHttpResponse);
+
+XmlHttpResponse = function(xhr, value) {
+    this.xhr = xhr;
+    this.value = value || null;
+    this.values = null;
+    this.links_map = null;
+};
+
+jQuery.extend(XmlHttpResponse.prototype, BaseHttpResponse.prototype);
+
+XmlHttpResponse.prototype.getValue = function() {
+    if (!this.value) {
+        this.value = this.xhr.responseXML;
+    }
+    
+    return this.value;
+};
+
+XmlHttpResponse.prototype.isOk = function() {
+    return this.xhr.status === 200 ? true : false;
+};
+
+HttpAgent.registerResponseContentTypes(['text/html', 'application/xml'], XmlHttpResponse);

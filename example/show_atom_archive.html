@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="http://code.jquery.com/jquery-1.6.4.js"></script>
+        <script src="../rest-client.js"></script>
+    </head>
+    <body>
+        Please see your browsers console.log for output!
+    </body>
+    <script>
+        var assertEquals = function(a, b, message) {
+            if(a === b) {
+                console.log('[OK]', a, '===', b);
+            } else {
+                console.error('[  ]', a, '!==', b, message || '');
+            }
+        }
+
+        console.log('Testing functionality ...');
+
+        /*
+         * Working api usage, with filter-object
+         */
+        var a = new HttpAgent('http://gdata.youtube.com/feeds/api/standardfeeds/most_viewed?max-results=5', {}, {
+            'proxy_script': 'proxy.php?url='
+        });
+
+        a.navigate(['next', 'next', {}, 'self']);
+        a.get(function(response) {
+            assertEquals(true, response.isOk(), 'Could not navigate to page 2, choose the first item and navigate to the #self-link.');
+            var title = jQuery(response.getValue()).find('title').text();
+            if (title) {
+                console.log('[OK] Title found in response of YT Video');
+            } else {
+                console.error('[  ] Could not find title response of YT Video');
+            }
+        });
+        
+        var a = new HttpAgent('recent.xml', {}, {
+            'proxy_script': 'local.php?file='
+        });
+        a.navigate(['next-archive', 'prev-archive', 'next-archive', {'title': 'Atom-Powered Robots Run Amok'}, 'self']);
+        a.get(function(response) {
+            var summary_text = jQuery(response.getValue()).find('summary').text();
+            assertEquals(summary_text, 'Some text.', 'Could not find "Some text."');
+        });
+
+    </script>
+</html>
