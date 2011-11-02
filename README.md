@@ -25,6 +25,8 @@ Requirements:
 How does it work?
 -----------------
 
+### Example with JSON
+
 If you include `rest-client.js` after your `jQuery.js`, you'll have the ability
 to make such requests:
 
@@ -49,10 +51,28 @@ This example assumes that the responses contain
             }
         ]
 
+### Remote Example with Atom-Feed
+
+This example retrieves the most viewed videos from youtube, navigates 2x next, chooses the
+first element (because of empty filter`{}`), navigates to it's `self` link and finally:
+returns the `<title>` element's text.
+
+    var a = new HttpAgent('http://gdata.youtube.com/feeds/api/standardfeeds/most_viewed?max-results=5', {}, {
+        'proxy_script': 'proxy.php?url='
+    });
+
+    a.navigate(['next', 'next', {}, 'self']);
+    a.get(function(response) {
+        var title = jQuery(response.getValue()).find('title').text();
+    });            
+
+That example also shows, how one can use the `proxy_script`-option to use a
+`.php`-script to retrieve contents from a remote site.
+
 Todos
 -----
 
-* add support for other responses (xml, maybe a generic converter system or usage of the one from jQuery)
+* test and extend support for other responses (xml, maybe a generic converter system or usage of the one from jQuery)
 * handle status codes other then 200 (currently only 200 is JsonHttpResponse#isOk() == true and 201 is interpreted)
 * add documentation for `HttpAgent`, `JsonHttpResponse`, `AtomXmlHttpResponse` and `XmlHttpResponse`
 * support mimetypes
