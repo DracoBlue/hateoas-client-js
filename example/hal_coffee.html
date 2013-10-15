@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="http://code.jquery.com/jquery-1.6.4.js"></script>
+        <script src="http://workspaces.local/sampbin/web/static/bower_components/jquery/jquery.js"></script>
+        <script src="../rest-client.js"></script>
+    </head>
+    <body>
+        Please see your browsers console.log for output!
+    </body>
+    <script>
+        var assertEquals = function(a, b, message) {
+            if(a === b) {
+                console.log('[OK]', a, '===', b);
+            } else {
+                console.error('[  ]', a, '!==', b, message || '');
+            }
+        }
+
+        console.log('Testing functionality ...');
+
+        /*
+         * Working api usage, without anything
+         */
+        var a = new HttpAgent('hal_local.php?file=api.json');
+        a.navigate(['coffee']);
+        a.get(function(response) {
+            assertEquals(response.isOk(), true, 'Cannot follow link');
+        });
+
+        /*
+         * Working api usage, with filter-object
+         */
+        var a = new HttpAgent('hal_local.php?file=api.json');
+        a.navigate(['coffee', {
+            'name' : 'Small'
+        }, "buy"]);
+        a.post(function(response) {
+            assertEquals(response.isOk(), true, 'It was not possible to navigate!');
+            assertEquals(response.getValue().status, 'pending', 'Cannot find status after navigation');
+        });
+
+        /*
+         * Working api usage, with filter-function
+         */
+        var a = new HttpAgent('hal_local.php?file=api.json');
+        a.navigate(['coffee',
+        function(value) {
+            return value.name === 'Small';
+        }, "buy"]);
+        a.post(function(response) {
+            assertEquals(response.getValue().status, 'pending', 'Cannot find status after navigation');
+        });
+
+        /*
+         * Broken api usage, because "invalid_link" cannot be found!
+         */
+        var a = new HttpAgent('hal_local.php?file=api.json');
+        a.navigate(['coffee', "invalid_link", "buy"]);
+        a.post(function(response) {
+            assertEquals(response.isOk(), false, 'It was possible to navigate!');
+        });
+
+    </script>
+</html>

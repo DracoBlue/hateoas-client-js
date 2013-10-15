@@ -1,0 +1,11 @@
+{
+    "_embedded": {
+        "product": {
+            "id": 5,
+            "name": "Small",
+            "_links": {
+                "buy": { "rel": "buy", "href": "hal/orders.php?product_id=5" }
+            }
+        }
+    }
+}

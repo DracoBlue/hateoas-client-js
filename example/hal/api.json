@@ -1,0 +1,5 @@
+{
+	"_links": {
+        "coffee": { "href": "hal_local.php?file=coffee.json" }
+    }
+}

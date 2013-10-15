@@ -401,6 +401,143 @@ JsonHttpResponse.prototype.getLinks = function() {
 
 HttpAgent.registerResponseContentTypes(['application/json'], JsonHttpResponse);
 
+JsonHalHttpResponse = function(xhr, value) {
+    this.xhr = xhr;
+    this.value = value || null;
+    this.values = null;
+    this.links_map = null;
+};
+
+jQuery.extend(JsonHalHttpResponse.prototype, BaseHttpResponse.prototype);
+
+JsonHalHttpResponse.prototype.getValue = function() {
+    if (!this.value) {
+        this.value = jQuery.parseJSON(this.xhr.responseText);
+    }
+
+    return this.value;
+};
+
+JsonHalHttpResponse.prototype.at = function(pos) {
+    var values = this.getValues();
+    return values[pos];
+};
+
+JsonHalHttpResponse.prototype.getValues = function() {
+    if (!this.values) {
+        var value_entry_points = [];
+
+        var value = this.getValue(this.xhr);
+
+        if (value.hasOwnProperty('_embedded')) {
+            embedded_objects_map = jQuery.extend(true, {}, value['_embedded']);
+        }
+
+        for (var rel in embedded_objects_map)
+        {
+            if (embedded_objects_map.hasOwnProperty(rel))
+            {
+                var embedded_objects = embedded_objects_map[rel];
+
+                /*
+                 * FIXME: An old man's check, whether what we've got here is an array or not
+                 */
+                if (typeof embedded_objects !== "object" || typeof embedded_objects.join !== "function") {
+                    embedded_objects = [embedded_objects];
+                }
+
+                var embedded_objects_length = embedded_objects.length;
+
+                for (var i = 0; i < embedded_objects_length; i++)
+                {
+                    value_entry_points.push(new JsonHalHttpResponse(this.xhr, embedded_objects[i]));
+                }
+            }
+        }
+
+        this.values = value_entry_points;
+    }
+
+    return this.values;
+};
+
+JsonHalHttpResponse.prototype.getMatchingValue = function(filter_object) {
+    var value_entry_points = [];
+
+    var values = this.getValues();
+
+    var values_length = values.length;
+
+    for (var i = 0; i < values_length; i++) {
+        var value = values[i].getValue();
+        var is_match = true;
+        if (typeof filter_object === 'function') {
+            is_match = filter_object(value);
+        } else {
+            for (key in filter_object) {
+                if (filter_object.hasOwnProperty(key) && filter_object[key] !== value[key]) {
+                    is_match = false;
+                }
+            }
+        }
+
+        if (is_match) {
+            return new JsonHalHttpResponse(this.xhr, value);
+        }
+    }
+
+    throw new Error('No matching value found for filter object');
+};
+
+JsonHalHttpResponse.prototype.getLinks = function() {
+    if (this.links_map) {
+        return this.links_map;
+    }
+
+    var value = this.getValue();
+    var links_map = {};
+    var raw_links_map = {};
+
+    if (value.hasOwnProperty('_links')) {
+        raw_links_map = jQuery.extend(true, raw_links_map, value['_links']);
+    }
+
+    for (var rel in raw_links_map)
+    {
+        if (raw_links_map.hasOwnProperty(rel))
+        {
+            var raw_links = raw_links_map[rel];
+
+            /*
+             * FIXME: An old man's check, whether what we've got here is an array or not
+             */
+            if (typeof raw_links !== "object" || typeof raw_links.join !== "function") {
+                raw_links = [raw_links];
+            }
+
+            var raw_links_length = raw_links.length;
+
+            for (var i = 0; i < raw_links_length; i++)
+            {
+                var link = raw_links[i];
+                var headers = {};
+                /* FIXME: is `type` allowed in HAL? */
+                if (link.type) {
+                    headers['Content-Type'] = link.type;
+                }
+                links_map[rel] = links_map[link.rel] || [];
+                links_map[rel].push(new HttpAgent(link.href, headers));
+            }
+        }
+    }
+
+    this.links_map = links_map;
+    return this.links_map;
+};
+
+HttpAgent.registerResponseContentTypes(['application/hal+json'], JsonHalHttpResponse);
+
+
 AtomXmlHttpResponse = function(xhr, value) {
     this.xhr = xhr;
     this.value = value || null;
