@@ -82,6 +82,7 @@ Changelog
 ---------
 
 * 1.0-dev
+  - fixes JsonHttpResponse xhr variable on sub values
   - added AtomXmlHttpResponse and example for atom feed retrieval
   - added filtering * + object to breadth first search for anything until it matches a filter object
   - added handler for 201 Created response

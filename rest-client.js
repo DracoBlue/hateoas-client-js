@@ -322,7 +322,7 @@ JsonHttpResponse.prototype.getValues = function() {
         var values_length = values.length;
 
         for (var i = 0; i < values_length; i++) {
-            value_entry_points.push(new JsonHttpResponse(xhr, values[i]));
+            value_entry_points.push(new JsonHttpResponse(this.xhr, values[i]));
         }
         
         this.values = value_entry_points;
