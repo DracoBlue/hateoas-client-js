@@ -3,7 +3,6 @@
  *
  * Not yet released.
  *
- * This file is part of JsBehaviour.
  * Copyright (c) 2011 DracoBlue, http://dracoblue.net/
  *
  * Licensed under the terms of MIT License. For the full copyright and license
