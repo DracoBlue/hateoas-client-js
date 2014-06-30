@@ -644,3 +644,12 @@ XmlHttpResponse.prototype.isOk = function() {
 };
 
 HttpAgent.registerResponseContentTypes(['text/html', 'application/xml'], XmlHttpResponse);
+
+if (typeof define !== "undefined")
+{
+    define('rest-client-js', [], function () {
+        return {
+            "HttpAgent": HttpAgent
+        };
+    });
+}

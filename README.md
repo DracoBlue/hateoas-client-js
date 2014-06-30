@@ -69,6 +69,18 @@ returns the `<title>` element's text.
 That example also shows, how one can use the `proxy_script`-option to use a
 `.php`-script to retrieve contents from a remote site.
 
+Usage with require.js
+---------------------
+
+If you want to retrieve the HttpAgent in your require.js script use (ensure that `rest-client-js` maps on `rest-client.js`
+in your requirejs config file):
+
+``` javascript
+require('rest-client-js', function(rest_client) {
+    var a = new rest_client.HttpAgent('/api');
+});
+```
+
 Todos
 -----
 
@@ -82,6 +94,7 @@ Changelog
 ---------
 
 * 1.0-dev
+  - added definition for requirejs
   - added JsonHalHttpResponse for HAL hyper media type
   - fixes JsonHttpResponse xhr variable on sub values
   - added AtomXmlHttpResponse and example for atom feed retrieval
