@@ -4,8 +4,7 @@ rest-client.js README
 This client is still a rough draft of how one could make this client happen.
 The api is subject to change and comments and help is appriciated!
 
-* Version: 1.0-dev
-* Date: not-yet-released
+* Latest Release: [![GitHub version](https://badge.fury.io/gh/DracoBlue%2Frest-client-js.png)](https://github.com/DracoBlue/rest-client-js/releases)
 * Official Site: <http://dracoblue.net/>
 
 rest-client.js is copyright 2011-2014 by DracoBlue <http://dracoblue.net>
@@ -93,7 +92,7 @@ Todos
 Changelog
 ---------
 
-* 1.0-dev
+* 0.1.0
   - added definition for requirejs
   - added JsonHalHttpResponse for HAL hyper media type
   - fixes JsonHttpResponse xhr variable on sub values
