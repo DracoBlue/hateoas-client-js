@@ -8,7 +8,7 @@ The api is subject to change and comments and help is appriciated!
 * Date: not-yet-released
 * Official Site: <http://dracoblue.net/>
 
-rest-client.js is copyright 2011 by DracoBlue <http://dracoblue.net>
+rest-client.js is copyright 2011-2014 by DracoBlue <http://dracoblue.net>
 
 What is rest-client.js?
 -----------------------
