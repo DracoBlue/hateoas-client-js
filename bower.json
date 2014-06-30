@@ -1,0 +1,32 @@
+{
+  "name": "rest-client-js",
+  "main": "rest-client.js",
+  "homepage": "https://github.com/DracoBlue/rest-client-js",
+  "authors": [
+    "DracoBlue <JanS@DracoBlue.de>"
+  ],
+  "description": "rest-client.js is a library to communicate with RESTful services. It uses jQuery as ajax library. It's aim is to provide a very simple API to follow the links defined in a request response, thus achieving level 3 in Richardson Maturity Model.",
+  "moduleType": [
+    "amd",
+    "globals"
+  ],
+  "keywords": [
+    "rest",
+    "client",
+    "rmm3",
+    "jquery",
+    "api",
+    "hal",
+    "atom",
+    "json",
+    "xml"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
