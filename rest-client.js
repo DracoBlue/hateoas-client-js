@@ -76,7 +76,7 @@ HttpAgent.prototype.rawCall = function(cb, verb, params, headers) {
                 that.url = response.getResponseHeader('Location');
                 that.rawCall(cb, 'GET', {}, headers);
             } else {
-                cb(HttpAgent.getHttpResponseByRawResponse(response));
+                cb(HttpAgent.getHttpResponseByRawResponse(response, that));
             }
         }
     });
@@ -275,14 +275,14 @@ HttpAgent.registerResponseContentTypes = function(content_types, converter_class
     this.response_content_types.push([content_types, converter_class]);
 };
         
-HttpAgent.getHttpResponseByRawResponse = function(raw_response) {
-    content_type = raw_response.getResponseHeader('content-type').toLowerCase().split(';')[0];
+HttpAgent.getHttpResponseByRawResponse = function(raw_response, agent) {
+    var content_type = (raw_response.getResponseHeader('content-type') || '').toLowerCase().split(';')[0];
     var response_content_types = this.response_content_types;
     var response_content_types_length = response_content_types.length;
     for (var i = 0; i < response_content_types_length; i++) {
         if (response_content_types[i][0].indexOf(content_type) !== -1) {
             var converter_class = response_content_types[i][1];
-            return new converter_class(raw_response);
+            return new converter_class(raw_response, null, agent);
         }
     }
     
@@ -309,8 +309,9 @@ BaseHttpResponse.prototype.getLink = function(link_name) {
     return links[link_name][0];
 };
 
-JsonHttpResponse = function(xhr, value) {
+JsonHttpResponse = function(xhr, value, agent) {
     this.xhr = xhr;
+	this.agent = agent;
     this.value = value || null;
     this.values = null;
     this.links_map = null;
@@ -409,7 +410,12 @@ JsonHttpResponse.prototype.getLinks = function() {
             headers['Content-Type'] = link.type;
         }
         links_map[link.rel] = links_map[link.rel] || [];
-        links_map[link.rel].push(new HttpAgent(link.href, headers));
+		var absolute_href = link.href;
+		if (absolute_href.substr(0, 1) == '/')
+		{
+			absolute_href = this.agent.getBaseUrl() + absolute_href;
+		}
+        links_map[link.rel].push(new HttpAgent(absolute_href, headers));
     }
     
     this.links_map = links_map;
@@ -418,8 +424,9 @@ JsonHttpResponse.prototype.getLinks = function() {
 
 HttpAgent.registerResponseContentTypes(['application/json'], JsonHttpResponse);
 
-JsonHalHttpResponse = function(xhr, value) {
+JsonHalHttpResponse = function(xhr, value, agent) {
     this.xhr = xhr;
+	this.agent = agent;
     this.value = value || null;
     this.values = null;
     this.links_map = null;
@@ -543,7 +550,12 @@ JsonHalHttpResponse.prototype.getLinks = function() {
                     headers['Content-Type'] = link.type;
                 }
                 links_map[rel] = links_map[link.rel] || [];
-                links_map[rel].push(new HttpAgent(link.href, headers));
+				var absolute_href = link.href;
+				if (absolute_href.substr(0, 1) == '/')
+				{
+					absolute_href = this.agent.getBaseUrl() + absolute_href;
+				}
+                links_map[rel].push(new HttpAgent(absolute_href, headers));
             }
         }
     }
@@ -555,8 +567,9 @@ JsonHalHttpResponse.prototype.getLinks = function() {
 HttpAgent.registerResponseContentTypes(['application/hal+json'], JsonHalHttpResponse);
 
 
-AtomXmlHttpResponse = function(xhr, value) {
+AtomXmlHttpResponse = function(xhr, value, agent) {
     this.xhr = xhr;
+	this.agent = agent;
     this.value = value || null;
     this.values = null;
     this.links_map = null;
@@ -631,7 +644,12 @@ AtomXmlHttpResponse.prototype.getLinks = function() {
             headers['Content-Type'] = link.attr('type');
         }
         links_map[rel] = links_map[rel] || [];
-        links_map[rel].push(new HttpAgent(link.attr('href'), headers));
+		var absolute_href = link.attr('href');
+		if (absolute_href.substr(0, 1) == '/')
+		{
+			absolute_href = this.agent.getBaseUrl() + absolute_href;
+		}
+		links_map[rel].push(new HttpAgent(absolute_href, headers));
     });
     
     this.links_map = links_map;
@@ -640,8 +658,9 @@ AtomXmlHttpResponse.prototype.getLinks = function() {
 
 HttpAgent.registerResponseContentTypes(['application/atom+xml'], AtomXmlHttpResponse);
 
-XmlHttpResponse = function(xhr, value) {
+XmlHttpResponse = function(xhr, value, agent) {
     this.xhr = xhr;
+	this.agent = agent;
     this.value = value || null;
     this.values = null;
     this.links_map = null;
