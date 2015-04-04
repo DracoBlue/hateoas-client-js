@@ -92,7 +92,7 @@ Todos
 Changelog
 ---------
 
-* dev
+* 0.2.0
   - added mocha test infrastructure
   - renamed to hateoas-client.js
   - handle relative paths in links (by asking HttpAgent for the base url)
