@@ -38,6 +38,17 @@ HttpAgent.prototype.clone = function() {
     return clone;
 };
 
+HttpAgent.prototype.getBaseUrl = function()
+{
+	var match = this.url.match(/^(.+?[\/]+?.+?)\//);
+	if (match)
+	{
+		return match[1];
+	}
+
+	return '';
+};
+
 HttpAgent.prototype.rawCall = function(cb, verb, params, headers) {
     var that = this;
     
