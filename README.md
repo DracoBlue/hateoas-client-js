@@ -93,6 +93,7 @@ Changelog
 ---------
 
 * dev
+  - added mocha test infrastructure
   - renamed to hateoas-client.js
   - handle relative paths in links (by asking HttpAgent for the base url)
   - Added FIXME method for getLinks on HTML/XML objects

@@ -31,5 +31,8 @@
     "domino": "^1.0.18",
     "jquery": "^2.1.3",
     "xmlhttprequest": "^1.7.0"
+  },
+  "devDependencies": {
+    "mocha": "*"
   }
 }
