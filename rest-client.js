@@ -1,9 +1,5 @@
 /*
- * rest-client.js 1.0-dev
- *
- * Not yet released.
- *
- * Copyright (c) 2011 DracoBlue, http://dracoblue.net/
+ * Copyright (c) 2011-2015 DracoBlue, http://dracoblue.net/
  *
  * Licensed under the terms of MIT License. For the full copyright and license
  * information, please see the LICENSE file in the root folder.
