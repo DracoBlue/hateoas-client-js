@@ -92,6 +92,8 @@ Todos
 Changelog
 ---------
 
+* dev
+  - added nodejs support with domino, jquery and xmlhttprequest for nodejs
 * 0.1.0
   - added definition for requirejs
   - added JsonHalHttpResponse for HAL hyper media type

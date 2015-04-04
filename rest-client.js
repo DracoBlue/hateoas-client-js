@@ -5,6 +5,17 @@
  * information, please see the LICENSE file in the root folder.
  */
 
+if (typeof window === 'undefined') { /* Running in NodeJS */
+	var domino = require('domino');
+	var $ = require('jquery')(domino.createWindow());
+	var jQuery = $;
+	var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
+	$.support.cors=true; // cross domain
+	$.ajaxSettings.xhr = function() {
+		return new XMLHttpRequest();
+	};
+}
+
 NotOkHttpResponse = function() {
     
 };
@@ -648,4 +659,8 @@ if (typeof define !== "undefined")
             "HttpAgent": HttpAgent
         };
     });
+}
+else if (typeof exports !== "undefined")
+{
+	exports.HttpAgent = HttpAgent;
 }
