@@ -93,6 +93,7 @@ Changelog
 ---------
 
 * dev
+  - Added FIXME method for getLinks on HTML/XML objects
   - added nodejs support with domino, jquery and xmlhttprequest for nodejs
 * 0.1.0
   - added definition for requirejs

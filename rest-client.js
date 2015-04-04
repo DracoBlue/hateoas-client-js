@@ -650,6 +650,11 @@ XmlHttpResponse.prototype.isOk = function() {
     return this.xhr.status === 200 ? true : false;
 };
 
+XmlHttpResponse.prototype.getLinks = function() {
+	/* FIXME: not yet implemented */
+	return {};
+};
+
 HttpAgent.registerResponseContentTypes(['text/html', 'application/xml'], XmlHttpResponse);
 
 if (typeof define !== "undefined")
