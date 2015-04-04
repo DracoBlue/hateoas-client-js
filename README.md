@@ -1,18 +1,18 @@
-rest-client.js README
+hateoas-client.js README
 =======================
 
 This client is still a rough draft of how one could make this client happen.
 The api is subject to change and comments and help is appriciated!
 
-* Latest Release: [![GitHub version](https://badge.fury.io/gh/DracoBlue%2Frest-client-js.png)](https://github.com/DracoBlue/rest-client-js/releases)
+* Latest Release: [![GitHub version](https://badge.fury.io/gh/DracoBlue%2Fhateoas-client-js.png)](https://github.com/DracoBlue/hateoas-client-js/releases)
 * Official Site: <http://dracoblue.net/>
 
-rest-client.js is copyright 2011-2014 by DracoBlue <http://dracoblue.net>
+hateoas-client.js is copyright 2011-2014 by DracoBlue <http://dracoblue.net>
 
-What is rest-client.js?
+What is hateoas-client.js?
 -----------------------
 
-rest-client.js is a library to communicate with RESTful services. It uses
+hateoas-client.js is a library to communicate with RESTful services. It uses
 jQuery as ajax library. It's aim is to provide a very simple API to follow
 the `links` defined in a request response, thus achieving
 level 3 in `Richardson Maturity Model`.
@@ -26,7 +26,7 @@ How does it work?
 
 ### Example with JSON
 
-If you include `rest-client.js` after your `jQuery.js`, you'll have the ability
+If you include `hateoas-client.js` after your `jQuery.js`, you'll have the ability
 to make such requests:
 
     var a = new HttpAgent('/api');
@@ -71,11 +71,11 @@ That example also shows, how one can use the `proxy_script`-option to use a
 Usage with require.js
 ---------------------
 
-If you want to retrieve the HttpAgent in your require.js script use (ensure that `rest-client-js` maps on `rest-client.js`
+If you want to retrieve the HttpAgent in your require.js script use (ensure that `hateoas-client-js` maps on `hateoas-client.js`
 in your requirejs config file):
 
 ``` javascript
-require('rest-client-js', function(rest_client) {
+require('hateoas-client', function(rest_client) {
     var a = new rest_client.HttpAgent('/api');
 });
 ```
@@ -93,6 +93,7 @@ Changelog
 ---------
 
 * dev
+  - renamed to hateoas-client.js
   - handle relative paths in links (by asking HttpAgent for the base url)
   - Added FIXME method for getLinks on HTML/XML objects
   - added nodejs support with domino, jquery and xmlhttprequest for nodejs
@@ -113,4 +114,4 @@ Changelog
 License
 --------
 
-rest-client.js is licensed under the terms of MIT. See LICENSE for more information.
+hateoas-client.js is licensed under the terms of MIT. See LICENSE for more information.

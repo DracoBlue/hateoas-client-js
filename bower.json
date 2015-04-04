@@ -1,11 +1,11 @@
 {
-  "name": "rest-client-js",
-  "main": "rest-client.js",
-  "homepage": "https://github.com/DracoBlue/rest-client-js",
+  "name": "hateoas-client",
+  "main": "hateoas-client.js",
+  "homepage": "https://github.com/DracoBlue/hateoas-client-js",
   "authors": [
     "DracoBlue <JanS@DracoBlue.de>"
   ],
-  "description": "rest-client.js is a library to communicate with RESTful services. It uses jQuery as ajax library. It's aim is to provide a very simple API to follow the links defined in a request response, thus achieving level 3 in Richardson Maturity Model.",
+  "description": "hateoas-client.js is a library to communicate with RESTful services. It uses jQuery as ajax library. It's aim is to provide a very simple API to follow the links defined in a request response, thus achieving level 3 in Richardson Maturity Model.",
   "moduleType": [
     "amd",
     "globals"

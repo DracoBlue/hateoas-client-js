@@ -58,7 +58,7 @@ HttpAgent.prototype.rawCall = function(cb, verb, params, headers) {
     if (this.options.proxy_script) {
         url = this.options.proxy_script + encodeURIComponent(url);
     }
-    
+	
     jQuery.ajax({
         beforeSend: function(xhrObj){
             for (var header in that.default_headers)
@@ -183,6 +183,14 @@ HttpAgent.prototype.rawBreadthFirstSearch = function(cb, filter_object) {
                     cb(links[filter_object][0], response);
                     return ;
                 }
+
+				if (typeof filter_object === "function") {
+					if (filter_object(response))
+					{
+						cb(tmp_entry_point.clone(), response);
+						return ;
+					}
+				}
                 
                 if (typeof filter_object !== "string") {
                     try {
@@ -689,7 +697,7 @@ HttpAgent.registerResponseContentTypes(['text/html', 'application/xml'], XmlHttp
 
 if (typeof define !== "undefined")
 {
-    define('rest-client-js', [], function () {
+    define('hateoas-client-js', [], function () {
         return {
             "HttpAgent": HttpAgent
         };
