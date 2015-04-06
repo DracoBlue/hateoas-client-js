@@ -79,8 +79,8 @@ If you want to retrieve the HttpAgent in your require.js script use (ensure that
 in your requirejs config file):
 
 ``` javascript
-require('hateoas-client', function(rest_client) {
-    var a = new rest_client.HttpAgent('/api');
+require('hateoas-client', function(hateoasClient) {
+    var a = new hateoasClient.HttpAgent('/api');
 });
 ```
 
