@@ -93,6 +93,7 @@ Changelog
 ---------
 
 * dev
+  - in case of unsupported media type return `UnsupportedMediaTypeHttpResponse`
   - added server test
   - inject agent also in subresponses of json, hal and atom response
   - handle `Location`-redirects with `/` at the beginning on 201 Status Code

@@ -335,8 +335,8 @@ HttpAgent.getHttpResponseByRawResponse = function(raw_response, agent) {
             return new converter_class(raw_response, null, agent);
         }
     }
-    
-    throw new Error('Cannot find converter for content type: ' + content_type);
+
+	return new UnsupportedMediaTypeHttpResponse();
 };
 
 BaseHttpResponse = function() {
@@ -734,6 +734,14 @@ XmlHttpResponse.prototype.isOk = function() {
 XmlHttpResponse.prototype.getLinks = function() {
 	/* FIXME: not yet implemented */
 	return {};
+};
+
+UnsupportedMediaTypeHttpResponse = function() {
+
+};
+
+UnsupportedMediaTypeHttpResponse.prototype.isOk = function() {
+	return false;
 };
 
 HttpAgent.registerResponseContentTypes(['text/html', 'application/xml'], XmlHttpResponse);
