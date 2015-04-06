@@ -6,7 +6,7 @@ The api is subject to change and comments and help is appriciated!
 
 * Latest Release: [![GitHub version](https://badge.fury.io/gh/DracoBlue%2Fhateoas-client-js.png)](https://github.com/DracoBlue/hateoas-client-js/releases)
 * Build-Status: [![Build Status](https://travis-ci.org/DracoBlue/hateoas-client-js.png?branch=master)](https://travis-ci.org/DracoBlue/hateoas-client-js)
-7	* Official Site: <http://dracoblue.net/>
+* Official Site: <http://dracoblue.net/>
 
 hateoas-client.js is copyright 2011-2014 by DracoBlue <http://dracoblue.net>
 
