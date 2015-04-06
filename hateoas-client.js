@@ -391,7 +391,7 @@ JsonHttpResponse.prototype.getValues = function() {
         var values_length = values.length;
 
         for (var i = 0; i < values_length; i++) {
-            value_entry_points.push(new JsonHttpResponse(this.xhr, values[i]));
+            value_entry_points.push(new JsonHttpResponse(this.xhr, values[i], this.agent));
         }
         
         this.values = value_entry_points;
@@ -428,7 +428,7 @@ JsonHttpResponse.prototype.getMatchingValue = function(filter_object) {
         }
         
         if (is_match) {
-            return new JsonHttpResponse(this.xhr, value);
+            return new JsonHttpResponse(this.xhr, value, this.agent);
         }
     }
     
@@ -525,7 +525,7 @@ JsonHalHttpResponse.prototype.getValues = function() {
 
                 for (var i = 0; i < embedded_objects_length; i++)
                 {
-                    value_entry_points.push(new JsonHalHttpResponse(this.xhr, embedded_objects[i]));
+                    value_entry_points.push(new JsonHalHttpResponse(this.xhr, embedded_objects[i], this.agent));
                 }
             }
         }
@@ -557,7 +557,7 @@ JsonHalHttpResponse.prototype.getMatchingValue = function(filter_object) {
         }
 
         if (is_match) {
-            return new JsonHalHttpResponse(this.xhr, value);
+            return new JsonHalHttpResponse(this.xhr, value, this.agent);
         }
     }
 
@@ -645,7 +645,7 @@ AtomXmlHttpResponse.prototype.getValues = function() {
         
         var entries = jQuery(this.getValue()).children('entry');
         jQuery.each(entries, function(pos, raw_entry) {
-            that.values.push(new AtomXmlHttpResponse(that.xhr, raw_entry));
+            that.values.push(new AtomXmlHttpResponse(that.xhr, raw_entry, that.agent));
         });
     }
     
@@ -660,7 +660,7 @@ AtomXmlHttpResponse.prototype.getMatchingValue = function(filter_object) {
     
     for (var i = 0; i < entries_length; i++) {
         var raw_entry = entries[i];
-        var value = new AtomXmlHttpResponse(this.xhr, raw_entry);
+        var value = new AtomXmlHttpResponse(this.xhr, raw_entry, this.agent);
         var is_match = true;
         if (typeof filter_object === 'function') {
             is_match = filter_object(value);
