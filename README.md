@@ -1,19 +1,16 @@
 hateoas-client.js README
 =======================
 
-This client is still a rough draft of how one could make this client happen.
-The api is subject to change and comments and help is appriciated!
-
 * Latest Release: [![GitHub version](https://badge.fury.io/gh/DracoBlue%2Fhateoas-client-js.png)](https://github.com/DracoBlue/hateoas-client-js/releases)
 * Build-Status: [![Build Status](https://travis-ci.org/DracoBlue/hateoas-client-js.png?branch=master)](https://travis-ci.org/DracoBlue/hateoas-client-js)
 * Official Site: <http://dracoblue.net/>
 
-hateoas-client.js is copyright 2011-2014 by DracoBlue <http://dracoblue.net>
+hateoas-client.js is copyright 2011-2015 by DracoBlue <http://dracoblue.net>
 
 What is hateoas-client.js?
 -----------------------
 
-hateoas-client.js is a library to communicate with RESTful services. It uses
+hateoas-client.js is a library (for browser+nodejs) to communicate with RESTful services. It uses
 jQuery as ajax library. It's aim is to provide a very simple API to follow
 the `links` defined in a request response, thus achieving
 level 3 in `Richardson Maturity Model`.
@@ -25,7 +22,7 @@ Requirements:
 Installation
 ------------
 
-* On the browser: `$ brower install hateoas-client`
+* On the browser: `$ bower install hateoas-client`
 * In nodejs: `$ npm install hateoas-client`
 
 How does it work?
@@ -91,7 +88,7 @@ Todos
 -----
 
 * test and extend support for other responses (xml, maybe a generic converter system or usage of the one from jQuery)
-* handle status codes other then 200 (currently only 200 is JsonHttpResponse#isOk() == true and 201 is interpreted)
+* handle status codes other then 200 (currently only 200 is `JsonHttpResponse#isOk() == true` and 201 is interpreted)
 * add documentation for `HttpAgent`, `JsonHttpResponse`, `AtomXmlHttpResponse` and `XmlHttpResponse`
 * support mimetypes
 * ... more as soon as I get to that!
