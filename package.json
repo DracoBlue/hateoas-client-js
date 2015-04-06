@@ -33,6 +33,7 @@
     "xmlhttprequest": "^1.7.0"
   },
   "devDependencies": {
+    "express": "^4.12.3",
     "mocha": "*"
   }
 }
