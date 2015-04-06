@@ -29,6 +29,7 @@ HttpAgent = function(url, headers, options) {
     this.default_headers = headers || {};
     this.navigation_steps = [];
     this.options = options || {};
+	this.logDebug('initialized', url);
 };
 
 HttpAgent.prototype.clone = function() {
@@ -36,6 +37,35 @@ HttpAgent.prototype.clone = function() {
     clone.default_headers = jQuery.extend(true, {}, this.default_headers);
     clone.navigation_steps = jQuery.extend(true, [], this.navigation_steps);
     return clone;
+};
+
+HttpAgent.enableLogging = false;
+
+HttpAgent.prototype.logDebug = function() {
+	if (HttpAgent.enableLogging)
+	{
+		if (typeof this.uniqueId === "undefined") {
+			this.uniqueId = (global.httpAgentNextUniqueLoggingId || 1);
+			global.httpAgentNextUniqueLoggingId = this.uniqueId + 1;
+		}
+		var parameters = Array.prototype.slice.apply(arguments, [0]);
+		parameters.unshift('[HttpAgent#' + this.uniqueId + ']');
+		console.log.apply(console, parameters);
+	}
+};
+
+HttpAgent.prototype.logTrace = function() {
+	if (HttpAgent.enableLogging)
+	{
+		if (typeof this.uniqueId === "undefined") {
+			this.uniqueId = (global.httpAgentNextUniqueLoggingId || 1);
+			global.httpAgentNextUniqueLoggingId = this.uniqueId + 1;
+		}
+		var parameters = Array.prototype.slice.apply(arguments, [0]);
+		var methodName = parameters.shift();
+		parameters.unshift('[HttpAgent.' + methodName + '#' + this.uniqueId + ']');
+		console.log.apply(console, parameters);
+	}
 };
 
 HttpAgent.prototype.getBaseUrl = function()
@@ -58,6 +88,8 @@ HttpAgent.prototype.rawCall = function(cb, verb, params, headers) {
     if (this.options.proxy_script) {
         url = this.options.proxy_script + encodeURIComponent(url);
     }
+
+	this.logTrace('rawCall', verb, that.url, params);
 	
     jQuery.ajax({
         beforeSend: function(xhrObj){
@@ -72,6 +104,8 @@ HttpAgent.prototype.rawCall = function(cb, verb, params, headers) {
         type: verb,
         data: params || {},
         complete: function(response) {
+			that.logDebug('status', response.status);
+			that.logDebug('response', (response.responseText || '').substr(0, 255));
             if (response.status === 201) {
                 that.url = response.getResponseHeader('Location');
                 that.rawCall(cb, 'GET', {}, headers);
@@ -284,12 +318,15 @@ HttpAgent.registerResponseContentTypes = function(content_types, converter_class
 };
         
 HttpAgent.getHttpResponseByRawResponse = function(raw_response, agent) {
+	agent.logTrace('getHttpResponseByRawResponse', raw_response, agent);
     var content_type = (raw_response.getResponseHeader('content-type') || '').toLowerCase().split(';')[0];
+	agent.logDebug('content type', content_type);
     var response_content_types = this.response_content_types;
     var response_content_types_length = response_content_types.length;
     for (var i = 0; i < response_content_types_length; i++) {
         if (response_content_types[i][0].indexOf(content_type) !== -1) {
             var converter_class = response_content_types[i][1];
+			agent.logDebug('converter', converter_class);
             return new converter_class(raw_response, null, agent);
         }
     }
@@ -323,6 +360,7 @@ JsonHttpResponse = function(xhr, value, agent) {
     this.value = value || null;
     this.values = null;
     this.links_map = null;
+	agent.logDebug('initialized JsonHttpResponse');
 };
 
 jQuery.extend(JsonHttpResponse.prototype, BaseHttpResponse.prototype);
