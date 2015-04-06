@@ -107,7 +107,12 @@ HttpAgent.prototype.rawCall = function(cb, verb, params, headers) {
 			that.logDebug('status', response.status);
 			that.logDebug('response', (response.responseText || '').substr(0, 255));
             if (response.status === 201) {
-                that.url = response.getResponseHeader('Location');
+				var absolute_href = response.getResponseHeader('Location');
+				if (absolute_href.substr(0, 1) == '/')
+				{
+					absolute_href = that.getBaseUrl() + absolute_href;
+				}
+				that.url = absolute_href;
                 that.rawCall(cb, 'GET', {}, headers);
             } else {
                 cb(HttpAgent.getHttpResponseByRawResponse(response, that));

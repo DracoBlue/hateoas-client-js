@@ -93,6 +93,7 @@ Changelog
 ---------
 
 * dev
+  - handle `Location`-redirects with `/` at the beginning on 201 Status Code
   - added `HttpAgent#logDebug` and `HttpAgent#logTrace` (enable it with `HttpAgent.enableLogging=true;` )
 * 0.2.0 (2015/04/04)
   - added mocha test infrastructure
