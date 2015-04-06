@@ -10,7 +10,7 @@ deploy:
   provider: npm
   email: JanS@DracoBlue.de
   api_key:
-    secure: fKf8t75RLkTDhAT0lxelHzoF8Vov9lH52RshQ4StIWnEBVOwfcHSmg58Xr2Ehk1O+5lrKtDgqC4ck68AXsbGGvR4r4Ft/vRd0ZyC7gi3YBWWNtNyGIPJAVsxorRqOP6Wc4ooaeIs4Ra6/DP7KmzgBpXkndDzR75sFe7Wp0yZnqg=
+    secure: L5zAYgQJJjVwBsPMXIkgStaXHc2zeK/g1czu7cuj4uE/n7p1B7U2RI28kGeTeoyIKRS2haKEBkJubhEEbjPVl1/FGhJ9Pc6RskmJTuSJpSpsbFqJzDDtI0aewFdZ7rFRmMI6YjxCS5Dvml9ZXRTmrP64e6nwYNLaQlOPs0aw12k=
   on:
     tags: true
     repo: DracoBlue/hateoas-client-js
