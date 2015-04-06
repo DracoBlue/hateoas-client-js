@@ -22,10 +22,16 @@ Requirements:
 
 * jQuery 1.5+
 
+Installation
+------------
+
+* On the browser: `$ brower install hateoas-client`
+* In nodejs: `$ npm install hateoas-client`
+
 How does it work?
 -----------------
 
-### Example with JSON
+### Example with JSON (in the browser)
 
 If you include `hateoas-client.js` after your `jQuery.js`, you'll have the ability
 to make such requests:
