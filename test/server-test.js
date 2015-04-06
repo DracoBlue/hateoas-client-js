@@ -36,8 +36,6 @@ describe('ServerTest', function(){
 		));
 	});
 
-	app.use(express.static('example'));
-
 	describe('new HttpAgent()', function(){
 
 		var server = null;
