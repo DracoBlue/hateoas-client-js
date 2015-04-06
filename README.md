@@ -96,7 +96,7 @@ Todos
 Changelog
 ---------
 
-* dev
+* 0.3.0 (2015/04/06)
   - in case of unsupported media type return `UnsupportedMediaTypeHttpResponse`
   - added server test
   - inject agent also in subresponses of json, hal and atom response
