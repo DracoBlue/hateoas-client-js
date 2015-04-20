@@ -114,6 +114,8 @@ HttpAgent.prototype.rawCall = function(cb, verb, params, headers) {
 				}
 				that.url = absolute_href;
                 that.rawCall(cb, 'GET', {}, headers);
+            } else if (response.status === 204) {
+                cb(new NoContentResponse(response, null, that));
             } else {
                 cb(HttpAgent.getHttpResponseByRawResponse(response, that));
             }
@@ -357,6 +359,29 @@ BaseHttpResponse.prototype.getLink = function(link_name) {
         throw new Error('Cannot find link with name: ' + link_name);
     }
     return links[link_name][0];
+};
+
+NoContentResponse = function(xhr, value, agent) {
+    this.xhr = xhr;
+    this.agent = agent;
+    this.value = value || null;
+    this.values = null;
+    this.links_map = null;
+};
+
+jQuery.extend(NoContentResponse.prototype, BaseHttpResponse.prototype);
+
+
+NoContentResponse.prototype.isOk = function() {
+    return true;
+};
+
+NoContentResponse.prototype.getLinks = function() {
+    return {};
+};
+
+NoContentResponse.prototype.getValue = function() {
+    return ;
 };
 
 JsonHttpResponse = function(xhr, value, agent) {

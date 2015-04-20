@@ -96,6 +96,7 @@ Todos
 Changelog
 ---------
 * dev
+  - added `NoContentResponse`
   - added `options.ajaxOptions` to override `jQuery.ajax` options
 * 0.3.1 (2015/04/20)
   - fixed multiple links in hal
