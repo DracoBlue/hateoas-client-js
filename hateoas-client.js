@@ -91,7 +91,7 @@ HttpAgent.prototype.rawCall = function(cb, verb, params, headers) {
 
 	this.logTrace('rawCall', verb, that.url, params);
 	
-    jQuery.ajax({
+    jQuery.ajax(jQuery.extend((this.options.ajaxOptions || {}), {
         beforeSend: function(xhrObj){
             for (var header in that.default_headers)
                 xhrObj.setRequestHeader(header, that.default_headers[header]);
@@ -118,7 +118,7 @@ HttpAgent.prototype.rawCall = function(cb, verb, params, headers) {
                 cb(HttpAgent.getHttpResponseByRawResponse(response, that));
             }
         }
-    });
+    }));
 };
 
 HttpAgent.prototype.rawNavigate = function(cb) {

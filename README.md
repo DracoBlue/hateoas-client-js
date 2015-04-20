@@ -95,6 +95,8 @@ Todos
 
 Changelog
 ---------
+* dev
+  - added `options.ajaxOptions` to override `jQuery.ajax` options
 * 0.3.1 (2015/04/20)
   - fixed multiple links in hal
 * 0.3.0 (2015/04/06)
