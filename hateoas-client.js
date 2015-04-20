@@ -302,6 +302,15 @@ HttpAgent.prototype.patch = function(cb, params, headers) {
     this.call(cb, 'PATCH', params, headers || {});
 };
 
+HttpAgent.prototype.head = function(cb, params, headers) {
+    this.call(cb, 'HEAD', params, headers || {});
+};
+
+HttpAgent.prototype.options = function(cb, params, headers) {
+    this.call(cb, 'OPTIONS', params, headers || {});
+};
+
+
 HttpAgent.prototype.navigate = function(steps) {
     if (typeof steps === 'string') {
         this.addNavigationStep(steps);

@@ -96,6 +96,7 @@ Todos
 Changelog
 ---------
 * dev
+  - added `options` and `head` request
   - added `NoContentResponse`
   - added `options.ajaxOptions` to override `jQuery.ajax` options
 * 0.3.1 (2015/04/20)
