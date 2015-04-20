@@ -95,7 +95,8 @@ Todos
 
 Changelog
 ---------
-
+* 0.3.1 (2015/04/20)
+  - fixed multiple links in hal
 * 0.3.0 (2015/04/06)
   - in case of unsupported media type return `UnsupportedMediaTypeHttpResponse`
   - added server test

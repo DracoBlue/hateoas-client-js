@@ -600,7 +600,7 @@ JsonHalHttpResponse.prototype.getLinks = function() {
                 if (link.type) {
                     headers['Content-Type'] = link.type;
                 }
-                links_map[rel] = links_map[link.rel] || [];
+                links_map[rel] = links_map[rel] || [];
 				var absolute_href = link.href;
 				if (absolute_href.substr(0, 1) == '/')
 				{
