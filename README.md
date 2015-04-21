@@ -96,6 +96,7 @@ Todos
 Changelog
 ---------
 * dev
+  - added `HttpAgent#getUrl`
   - added `head` request
   - added `NoContentResponse`
   - added `options.ajaxOptions` to override `jQuery.ajax` options

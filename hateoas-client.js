@@ -68,6 +68,11 @@ HttpAgent.prototype.logTrace = function() {
 	}
 };
 
+HttpAgent.prototype.getUrl = function()
+{
+    return this.url;
+};
+
 HttpAgent.prototype.getBaseUrl = function()
 {
 	var match = this.url.match(/^(.+?[\/]+?.+?)\//);
