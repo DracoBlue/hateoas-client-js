@@ -97,6 +97,7 @@ Changelog
 ---------
 * dev
   - added `HttpAgent#getUrl`
+  - added `HttpLink` as subclass of HttpAgent with `getRel`, `getType` and `getTitle`
   - added `head` request
   - added `NoContentResponse`
   - added `options.ajaxOptions` to override `jQuery.ajax` options

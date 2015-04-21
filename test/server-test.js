@@ -50,6 +50,21 @@ describe('ServerTest', function(){
 			});
 		});
 
+        it('should give a link', function(done){
+            var agent = new hateoasClient.HttpAgent('http://127.0.0.1:3000/api.json');
+
+            agent.get(function(response) {
+                assert.equal(true, response.isOk(), 'It was not possible to navigate!');
+                var links = response.getLinks();
+                assert.ok(links["coffee"]);
+                assert.equal(1, links["coffee"].length);
+                var coffee_link = response.getLink('coffee');
+                assert.equal('http://127.0.0.1:3000/api/coffee.json', coffee_link.getUrl());
+                assert.equal('coffee', coffee_link.getRel());
+                done();
+            });
+        });
+
 		it('should navigate with filter object', function(done){
 			var agent = new hateoasClient.HttpAgent('http://127.0.0.1:3000/api.json');
 

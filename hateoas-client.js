@@ -350,6 +350,28 @@ HttpAgent.getHttpResponseByRawResponse = function(raw_response, agent) {
 	return new UnsupportedMediaTypeHttpResponse();
 };
 
+HttpLink = function(link_data, url, headers, options) {
+    this.url = url;
+    this.default_headers = headers || {};
+    this.navigation_steps = [];
+    this.options = options || {};
+    this.link_data = link_data;
+};
+
+jQuery.extend(HttpLink.prototype, HttpAgent.prototype);
+
+HttpLink.prototype.getRel = function() {
+    return this.link_data['rel'];
+};
+
+HttpLink.prototype.getTitle = function() {
+    return this.link_data['title'];
+};
+
+HttpLink.prototype.getType = function() {
+    return this.link_data['type'];
+};
+
 BaseHttpResponse = function() {
     
 };
@@ -500,7 +522,7 @@ JsonHttpResponse.prototype.getLinks = function() {
 		{
 			absolute_href = this.agent.getBaseUrl() + absolute_href;
 		}
-        links_map[link.rel].push(new HttpAgent(absolute_href, headers));
+        links_map[link.rel].push(new HttpLink({"rel": link.rel, "type": link.type},absolute_href, headers));
     }
     
     this.links_map = links_map;
@@ -640,7 +662,7 @@ JsonHalHttpResponse.prototype.getLinks = function() {
 				{
 					absolute_href = this.agent.getBaseUrl() + absolute_href;
 				}
-                links_map[rel].push(new HttpAgent(absolute_href, headers));
+                links_map[rel].push(new HttpLink({"rel": rel, "type": link.type, "title": link.title}, absolute_href, headers));
             }
         }
     }
@@ -734,7 +756,7 @@ AtomXmlHttpResponse.prototype.getLinks = function() {
 		{
 			absolute_href = this.agent.getBaseUrl() + absolute_href;
 		}
-		links_map[rel].push(new HttpAgent(absolute_href, headers));
+		links_map[rel].push(new HttpLink({"rel": rel, "type": link.attr('type')}, absolute_href, headers));
     });
     
     this.links_map = links_map;
