@@ -461,8 +461,6 @@ JsonHttpResponse.prototype.getValues = function() {
 };
 
 JsonHttpResponse.prototype.getMatchingValue = function(filter_object) {
-    var value_entry_points = [];
-    
     var values = this.getValue();
     
     /*
@@ -564,6 +562,8 @@ JsonHalHttpResponse.prototype.getValues = function() {
 
         var value = this.getValue(this.xhr);
 
+        var embedded_objects_map = {};
+
         if (value.hasOwnProperty('_embedded')) {
             embedded_objects_map = jQuery.extend(true, {}, value['_embedded']);
         }
@@ -597,8 +597,6 @@ JsonHalHttpResponse.prototype.getValues = function() {
 };
 
 JsonHalHttpResponse.prototype.getMatchingValue = function(filter_object) {
-    var value_entry_points = [];
-
     var values = this.getValues();
 
     var values_length = values.length;
