@@ -377,7 +377,11 @@ BaseHttpResponse = function() {
 };
 
 BaseHttpResponse.prototype.isOk = function() {
-    return this.xhr.status === 200 ? true : false;
+    return 200 === this.getStatusCode() ? true : false;
+};
+
+BaseHttpResponse.prototype.getStatusCode = function() {
+    return this.xhr.status;
 };
 
 BaseHttpResponse.prototype.getHeader = function(name, default_value) {
@@ -781,10 +785,6 @@ XmlHttpResponse.prototype.getValue = function() {
     }
     
     return this.value;
-};
-
-XmlHttpResponse.prototype.isOk = function() {
-    return this.xhr.status === 200 ? true : false;
 };
 
 XmlHttpResponse.prototype.getLinks = function() {
