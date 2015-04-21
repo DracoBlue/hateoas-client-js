@@ -61,6 +61,8 @@ describe('ServerTest', function(){
                 var coffee_link = response.getLink('coffee');
                 assert.equal('http://127.0.0.1:3000/api/coffee.json', coffee_link.getUrl());
                 assert.equal('coffee', coffee_link.getRel());
+                assert.equal('Express', response.getHeader('x-powered-by'));
+                assert.equal('Express', response.getAllHeaders()['x-powered-by']);
                 done();
             });
         });

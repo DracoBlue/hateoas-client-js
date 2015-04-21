@@ -96,6 +96,7 @@ Todos
 Changelog
 ---------
 * dev
+  - added `BaseHttpResponse#getAllHeaders`
   - added `BaseHttpResponse#getStatusCode`
   - added `HttpAgent#getUrl`
   - added `HttpLink` as subclass of HttpAgent with `getRel`, `getType` and `getTitle`

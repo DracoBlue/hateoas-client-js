@@ -388,6 +388,19 @@ BaseHttpResponse.prototype.getHeader = function(name, default_value) {
     return this.xhr.getResponseHeader(name) || default_value;
 };
 
+BaseHttpResponse.prototype.getAllHeaders = function() {
+    var headers = {};
+    var rawHeaders = this.xhr.getAllResponseHeaders();
+    var extractHeadersRegExp = /^([^:]+):\s+(.+)$/mg;
+    var match;
+
+    while ((match = extractHeadersRegExp.exec(rawHeaders)) !== null) {
+        headers[match[1].trim()] = match[2].trim();
+    }
+
+    return headers;
+};
+
 BaseHttpResponse.prototype.getLink = function(link_name) {
     var links = this.getLinks();
     if (typeof links[link_name] === 'undefined') {
