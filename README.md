@@ -92,7 +92,7 @@ Supported Media Types
 	- `getValues()`: If the entire response was an array, it will return each element as `JsonHttpResponse[]`.
 	- `getMatchingValue()`: Filters on `getValues()`
 	- `getLinks()`: Expects a `links`-property as array with `{rel: REL, "href": URL}` elements and returns them as `HttpLink[]`
-* `application/atom+xml` (detected by `AtomXmlHttpResponse`)
+* `application/atom+xml` (detected by `AtomXmlHttpResponse`), supported features:
 	- `getValue()`: Returns the entire response as xml object
 	- `getValues()`: Returns all `<entry>` children as `AtomXmlHttpResponse[]`.
 	- `getMatchingValue()`: Filters on `getValues()`
@@ -102,7 +102,7 @@ Supported Media Types
 	- `getValues()`: Returns all `_embedded` objects as `JsonHalHttpResponse[]`.
 	- `getMatchingValue()`: Filters on `getValues()`
 	- `getLinks()`: Returns all `_links` and `_embedded` links as `HttpLink[]` according to HAL specification
-* `application/hc+json` (detected by `JsonHcHttpResponse`)
+* `application/hc+json` (detected by `JsonHcHttpResponse`), supported features:
 	- `getValue()`: Returns the entire response as json object
 	- `getValues()`: Returns all embedded objects on root level with `self`-link as `JsonHalHttpResponse[]`.
 	- `getMatchingValue()`: Filters on `getValues()`
