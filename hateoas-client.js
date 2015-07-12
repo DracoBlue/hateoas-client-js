@@ -332,6 +332,16 @@ HttpAgent.response_content_types = [];
 HttpAgent.registerResponseContentTypes = function(content_types, converter_class) {
     this.response_content_types.push([content_types, converter_class]);
 };
+
+HttpAgent.relations = [];
+
+HttpAgent.registerRelation = function(relation) {
+    this.relations.push(relation);
+};
+
+HttpAgent.isRegisteredRelation = function(relation) {
+    return this.relations.indexOf(relation) === -1 ? false : true;
+};
         
 HttpAgent.getHttpResponseByRawResponse = function(raw_response, agent) {
 	agent.logTrace('getHttpResponseByRawResponse', raw_response, agent);
@@ -545,6 +555,159 @@ JsonHttpResponse.prototype.getLinks = function() {
 };
 
 HttpAgent.registerResponseContentTypes(['application/json'], JsonHttpResponse);
+
+JsonHcHttpResponse = function(xhr, value, agent) {
+    this.xhr = xhr;
+    this.agent = agent;
+    this.value = value || null;
+    this.values = null;
+    this.links_map = null;
+    agent.logDebug('initialized JsonHcHttpResponse');
+};
+
+jQuery.extend(JsonHcHttpResponse.prototype, BaseHttpResponse.prototype);
+
+JsonHcHttpResponse.prototype.getValue = function() {
+    if (!this.value) {
+        this.value = jQuery.parseJSON(this.xhr.responseText);
+    }
+
+    return this.value;
+};
+
+JsonHcHttpResponse.prototype.at = function(pos) {
+    var values = this.getValues();
+    return values[pos];
+};
+
+JsonHcHttpResponse.prototype.getValues = function() {
+    var that = this;
+    if (!this.values) {
+        var value_entry_points = [];
+
+        var value = this.getValue(this.xhr);
+
+        var parseLinkArrayOrProperty = function(value, key) {
+            if (value.hasOwnProperty("self") && typeof value.self === "string") {
+                /*
+                 * We have "key": {"self": "/some/url"}, so an embedded object. So we generate the
+                 * link for that object.
+                 */
+                value_entry_points.push(new JsonHcHttpResponse(that.xhr, value, this.agent));
+            } else if (typeof value == "object" && Array.isArray(value)) {
+                value.forEach(function(array_item) {
+                    parseLinkArrayOrProperty(array_item, key);
+                });
+            }
+        };
+
+        for (var key in value) {
+            if (value.hasOwnProperty(key)) {
+                parseLinkArrayOrProperty(value[key], key);
+            }
+        }
+        this.values = value_entry_points;
+    }
+
+    return this.values;
+};
+
+JsonHcHttpResponse.prototype.getMatchingValue = function(filter_object) {
+    var values = this.getValue();
+
+    /*
+     * FIXME: An old man's check, whether what we've got here is an array or not
+     */
+    if (typeof values !== "object" || typeof values.join !== "function") {
+        values = [values];
+    }
+
+    var values_length = values.length;
+
+    for (var i = 0; i < values_length; i++) {
+        var value = values[i];
+        var is_match = true;
+        if (typeof filter_object === 'function') {
+            is_match = filter_object(value);
+        } else {
+            for (var key in filter_object) {
+                if (filter_object.hasOwnProperty(key) && filter_object[key] !== value[key]) {
+                    is_match = false;
+                }
+            }
+        }
+
+        if (is_match) {
+            return new JsonHcHttpResponse(this.xhr, value, this.agent);
+        }
+    }
+
+    throw new Error('No matching value found for filter object');
+};
+
+JsonHcHttpResponse.prototype.getLinks = function() {
+    var that = this;
+    if (this.links_map) {
+        return this.links_map;
+    }
+
+    var value = this.getValue();
+
+    var isValidLinkKeyAndValue = function(key, value) {
+        if (HttpAgent.isRegisteredRelation(key)) {
+            return true;
+        }
+
+        if (key.substr(0, 5) == 'http:' || key.substr(0, 6) == 'https:') {
+            return true;
+        }
+
+        //if (typeof value === "string" && value.substr(0, 1) == '/') {
+        //    return true;
+        //}
+
+        return false;
+    };
+
+    var links_map = {};
+
+    var parseLinkArrayOrProperty = function(value, key) {
+        if (typeof value == "string") {
+            /*
+             * We have "key": "/relative/url" or "key": "http://example.org/absolute/url"
+             */
+            var absolute_href = value;
+            if (absolute_href.substr(0, 1) == '/')
+            {
+                absolute_href = that.agent.getBaseUrl() + absolute_href;
+            }
+            links_map[key] = links_map[key] || [];
+            links_map[key].push(new HttpLink({"rel": key}, absolute_href, {}));
+        } else if (value.hasOwnProperty("self") && typeof value.self === "string") {
+            /*
+             * We have "key": {"self": "/some/url"}, so an embedded object. So we generate the
+             * link for that object.
+             */
+            links_map[key] = links_map[key] || [];
+            links_map[key].push(new HttpLink({"rel": key}, value.self, {}));
+        } else if (typeof value == "object" && Array.isArray(value)) {
+            value.forEach(function(array_item) {
+                parseLinkArrayOrProperty(array_item, key);
+            });
+        }
+    };
+
+    for (var key in value) {
+        if (value.hasOwnProperty(key) && isValidLinkKeyAndValue(key, value[key])) {
+            parseLinkArrayOrProperty(value[key], key);
+        }
+    }
+
+    this.links_map = links_map;
+    return this.links_map;
+};
+
+HttpAgent.registerResponseContentTypes(['application/hc+json'], JsonHcHttpResponse);
 
 JsonHalHttpResponse = function(xhr, value, agent) {
     this.xhr = xhr;
@@ -812,6 +975,82 @@ UnsupportedMediaTypeHttpResponse.prototype.isOk = function() {
 };
 
 HttpAgent.registerResponseContentTypes(['text/html', 'application/xml'], XmlHttpResponse);
+
+/*
+ * The registered relations are auto-generated like this (last update 2015/07/12):
+ * curl -sS http://www.iana.org/assignments/link-relations/link-relations.xml | grep '<value>' | tr -s ' ' | cut -f '2' -d '>' | cut -f '1' -d '<' | while read line; do echo "HttpAgent.registerRelation('$line');"; done
+ */
+HttpAgent.registerRelation('about');
+HttpAgent.registerRelation('alternate');
+HttpAgent.registerRelation('appendix');
+HttpAgent.registerRelation('archives');
+HttpAgent.registerRelation('author');
+HttpAgent.registerRelation('bookmark');
+HttpAgent.registerRelation('canonical');
+HttpAgent.registerRelation('chapter');
+HttpAgent.registerRelation('collection');
+HttpAgent.registerRelation('contents');
+HttpAgent.registerRelation('copyright');
+HttpAgent.registerRelation('create-form');
+HttpAgent.registerRelation('current');
+HttpAgent.registerRelation('derivedfrom');
+HttpAgent.registerRelation('describedby');
+HttpAgent.registerRelation('describes');
+HttpAgent.registerRelation('disclosure');
+HttpAgent.registerRelation('duplicate');
+HttpAgent.registerRelation('edit');
+HttpAgent.registerRelation('edit-form');
+HttpAgent.registerRelation('edit-media');
+HttpAgent.registerRelation('enclosure');
+HttpAgent.registerRelation('first');
+HttpAgent.registerRelation('glossary');
+HttpAgent.registerRelation('help');
+HttpAgent.registerRelation('hosts');
+HttpAgent.registerRelation('hub');
+HttpAgent.registerRelation('icon');
+HttpAgent.registerRelation('index');
+HttpAgent.registerRelation('item');
+HttpAgent.registerRelation('last');
+HttpAgent.registerRelation('latest-version');
+HttpAgent.registerRelation('license');
+HttpAgent.registerRelation('lrdd');
+HttpAgent.registerRelation('memento');
+HttpAgent.registerRelation('monitor');
+HttpAgent.registerRelation('monitor-group');
+HttpAgent.registerRelation('next');
+HttpAgent.registerRelation('next-archive');
+HttpAgent.registerRelation('nofollow');
+HttpAgent.registerRelation('noreferrer');
+HttpAgent.registerRelation('original');
+HttpAgent.registerRelation('payment');
+HttpAgent.registerRelation('predecessor-version');
+HttpAgent.registerRelation('prefetch');
+HttpAgent.registerRelation('prev');
+HttpAgent.registerRelation('preview');
+HttpAgent.registerRelation('previous');
+HttpAgent.registerRelation('prev-archive');
+HttpAgent.registerRelation('privacy-policy');
+HttpAgent.registerRelation('profile');
+HttpAgent.registerRelation('related');
+HttpAgent.registerRelation('replies');
+HttpAgent.registerRelation('search');
+HttpAgent.registerRelation('section');
+HttpAgent.registerRelation('self');
+HttpAgent.registerRelation('service');
+HttpAgent.registerRelation('start');
+HttpAgent.registerRelation('stylesheet');
+HttpAgent.registerRelation('subsection');
+HttpAgent.registerRelation('successor-version');
+HttpAgent.registerRelation('tag');
+HttpAgent.registerRelation('terms-of-service');
+HttpAgent.registerRelation('timegate');
+HttpAgent.registerRelation('timemap');
+HttpAgent.registerRelation('type');
+HttpAgent.registerRelation('up');
+HttpAgent.registerRelation('version-history');
+HttpAgent.registerRelation('via');
+HttpAgent.registerRelation('working-copy');
+HttpAgent.registerRelation('working-copy-of');
 
 if (typeof define !== "undefined")
 {

@@ -84,13 +84,38 @@ require('hateoas-client', function(hateoasClient) {
 });
 ```
 
+Supported Media Types
+---------------------
+
+* `application/json` (detected by `JsonHttpResponse`), supported features:
+	- `getValue()`: Returns the entire response as json object
+	- `getValues()`: If the entire response was an array, it will return each element as `JsonHttpResponse[]`.
+	- `getMatchingValue()`: Filters on `getValues()`
+	- `getLinks()`: Expects a `links`-property as array with `{rel: REL, "href": URL}` elements and returns them as `HttpLink[]`
+* `application/atom+xml` (detected by `AtomXmlHttpResponse`)
+	- `getValue()`: Returns the entire response as xml object
+	- `getValues()`: Returns all `<entry>` children as `AtomXmlHttpResponse[]`.
+	- `getMatchingValue()`: Filters on `getValues()`
+	- `getLinks()`: Returns all `<link>` children as `HttpLink[]`
+* `application/hal+json` (detected by `JsonHalHttpResponse`), supported features:
+	- `getValue()`: Returns the entire response as json object
+	- `getValues()`: Returns all `_embedded` objects as `JsonHalHttpResponse[]`.
+	- `getMatchingValue()`: Filters on `getValues()`
+	- `getLinks()`: Returns all `_links` and `_embedded` links as `HttpLink[]` according to HAL specification
+* `application/hc+json` (detected by `JsonHcHttpResponse`)
+	- `getValue()`: Returns the entire response as json object
+	- `getValues()`: Returns all embedded objects on root level with `self`-link as `JsonHalHttpResponse[]`.
+	- `getMatchingValue()`: Filters on `getValues()`
+	- `getLinks()`: Returns all embedded objects (with `self`-link), obvious links (with iana registration) or properties starting with `http:`/`https:` on root level as `HttpLink[]`
+* `application/xml` (detected by `XmlHttpResponse`), supported features:
+	- `getValue()`: Returns the entire response as xml object
+
 Todos
 -----
 
 * test and extend support for other responses (xml, maybe a generic converter system or usage of the one from jQuery)
 * handle status codes other then 200 (currently only 200 is `JsonHttpResponse#isOk() == true` and 201 is interpreted)
 * add documentation for `HttpAgent`, `JsonHttpResponse`, `AtomXmlHttpResponse` and `XmlHttpResponse`
-* support mimetypes
 * ... more as soon as I get to that!
 
 Changelog

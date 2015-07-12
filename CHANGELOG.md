@@ -3,6 +3,7 @@ hateoas-client.js Changelog
 
 ## dev
 
+  - added experimental support for JSON HC
   - added tests for hal in `test/hal-test.js`
   
 ## 0.4.0 (2015/04/21)
