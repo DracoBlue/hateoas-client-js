@@ -95,6 +95,8 @@ Todos
 
 Changelog
 ---------
+* dev
+  - added tests for hal in `test/hal-test.js`
 * 0.4.0 (2015/04/21)
   - added `BaseHttpResponse#getAllHeaders`
   - added `BaseHttpResponse#getStatusCode`
