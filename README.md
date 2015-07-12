@@ -75,7 +75,7 @@ That example also shows, how one can use the `proxy_script`-option to use a
 Usage with require.js
 ---------------------
 
-If you want to retrieve the HttpAgent in your require.js script use (ensure that `hateoas-client-js` maps on `hateoas-client.js`
+If you want to retrieve the HttpAgent in your require.js script use (ensure that `hateoas-client` maps on `hateoas-client.js`
 in your requirejs config file):
 
 ``` javascript
